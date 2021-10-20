@@ -1,0 +1,17 @@
+*.log
+*.txt
+*.mat
+*.m
+
+*/__pycache__/
+__pycache__/
+backup/
+figure/
+forOpenPose/
+log_new/
+logfile/
+matFile/
+matFile_new/
+plotDict/
+runs/
+vis/
