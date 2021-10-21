@@ -35,7 +35,7 @@ clip = 'Multi'
 # clip = 'Single'
 fusion = False
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 saveModel = modelRoot + dataset + '/CS/2S_Multi_500_openpose_lam1051_v2/'
 if not os.path.exists(saveModel):
     os.makedirs(saveModel)
