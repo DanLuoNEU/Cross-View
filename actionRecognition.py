@@ -28,7 +28,7 @@ num_workers = 4# 4
 # Experiment
   #8 #40
 dataset = 'N-UCLA'
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 
 saveModel = os.path.join(modelRoot, dataset, 'viewTransformer_grayImg')
 if not os.path.exists(saveModel):

@@ -35,7 +35,7 @@ clip = 'Multi'
 fusion = False
 # fusion = True
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 # modelPath = modelRoot + dataset + '/CS/2S_Multi_500_openpose_lam1051/'
 # modelPath = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
 # modelPath = modelRoot + dataset + '/2Stream/multiClip_lam1051_testV2_CV/'

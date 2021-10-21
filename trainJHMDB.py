@@ -27,7 +27,7 @@ Drr = torch.from_numpy(Drr).float()
 Dtheta = np.angle(P)
 Dtheta = torch.from_numpy(Dtheta).float()
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 saveModel = modelRoot + dataset + '/2Stream/train_t36_JHMDB/'
 if not os.path.exists(saveModel):

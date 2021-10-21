@@ -16,7 +16,7 @@ lam1 = 0 # BI
 lam2 = 1  # MSE
 T = 36
 dataSet = 'Sythetic'
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 saveModel = modelRoot + dataSet + '/hardGumbel/'
 # if not os.path.exists(saveModel):
 #     os.makedirs(saveModel)

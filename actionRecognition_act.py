@@ -26,7 +26,7 @@ gpu_id = 2
 num_workers = 2# 4
 # Experiment
 dataset = 'NUCLA'
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 
 saveModel = os.path.join(modelRoot, dataset, 'action_viewTransformer_gray/')
 

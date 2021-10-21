@@ -20,7 +20,7 @@ dataType = '2D'
 clip = 'Single'
 
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 modelPath = modelRoot + dataset + '/newDYAN/sparseCode_NUCLA_T36_fist001_openPose/'
 stateDict = torch.load(os.path.join(modelPath, '50.pth'))['state_dict']
 

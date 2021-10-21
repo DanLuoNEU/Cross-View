@@ -51,7 +51,7 @@ net.cuda(gpu_id)
 # for m in net.sparseCoding.parameters():
 #     m.requires_grad = False
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 saveModel = modelRoot + dataset + '/newDYAN/BinarizeSparseCode_hardGumbel_v2/'
 if not os.path.exists(saveModel):

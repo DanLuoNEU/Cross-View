@@ -32,7 +32,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 # net.cuda(gpu_id)
 net = DyanEncoder(Drr, Dtheta, lam=0.01, gpu_id=gpu_id).cuda(gpu_id)
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 saveModel = modelRoot + dataset + '/newDYAN/sparseCode_NUCLA_T36_fist001_openPose_multi/'
 if not os.path.exists(saveModel):

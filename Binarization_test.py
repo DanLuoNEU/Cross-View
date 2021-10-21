@@ -21,7 +21,7 @@ T = 36
 
 N = 40*2
 map_location = torch.device(gpu_id)
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 modelPath = modelRoot + dataset + '/newDYAN/BinarizeSparseCode_hardGumbel_v2/'
 stateDict = torch.load(os.path.join(modelPath, '10.pth'), map_location=map_location)['state_dict']
 Drr = stateDict['sparseCoding.rr']

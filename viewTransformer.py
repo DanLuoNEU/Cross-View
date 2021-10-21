@@ -32,7 +32,7 @@ num_workers = 2
 PRE = 0
 dataset = 'NUCLA'
 #
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 
 saveModel = os.path.join(modelRoot, dataset, 'viewTransformer_heatmaps/')
 if not os.path.exists(saveModel):

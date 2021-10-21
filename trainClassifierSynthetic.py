@@ -15,7 +15,7 @@ dataset = 'Sythetic'
 dataType = '2D'
 getBinaryCode = binaryCoding(num_binary=Npole).cuda(gpu_id)
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 
 # modelPath = modelRoot + dataset + '/BiSythetic_BiOnly_m8Alpha01_10_6poles/'
 # stateDict = torch.load(os.path.join(modelPath, '150.pth'))['state_dict']

@@ -37,7 +37,7 @@ Drr = torch.from_numpy(Drr).float()
 Dtheta = np.angle(P)
 Dtheta = torch.from_numpy(Dtheta).float()
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 saveModel = modelRoot + dataset + '/singleClip/singleClip_T36_CV_testV3/'
 if not os.path.exists(saveModel):
     os.makedirs(saveModel)

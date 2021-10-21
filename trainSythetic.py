@@ -28,7 +28,7 @@ dataset = 'Sythetic'
 net = binaryCoding(num_binary=Npole).cuda(gpu_id)
 
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 saveModel = modelRoot + dataset + '/BiSythetic_BiOnly_5cls/'
 # if not os.path.exists(saveModel):
 #     os.makedirs(saveModel)

@@ -14,7 +14,7 @@ num_workers = 2
 PRE = 0
 dataset = 'NUCLA'
 #
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './ModelFile/crossViewModel/'
 
 modelPath = os.path.join(modelRoot, dataset, 'viewTransformer_heatmaps/')
 stateDict = torch.load(os.path.join(modelPath, '200.pth'))['state_dict']
