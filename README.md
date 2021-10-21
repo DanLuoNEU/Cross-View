@@ -11,8 +11,8 @@ trainClassifier_Multi_CV.py \
 
 ## Test 
 testClassifier_Multi_CS.py \
-&nbsp; -train with multi sampler for Cross-Subject
+&nbsp; -test with multi sampler for Cross-Subject
 
 
 testClassifier_Multi_CV.py \
-&nbsp; -train with multi sampler for Cross-View
+&nbsp; -test with multi sampler for Cross-View
