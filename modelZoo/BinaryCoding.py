@@ -6,6 +6,7 @@ from utils import *
 from modelZoo.actRGB import *
 from modelZoo.gumbel_module import *
 from scipy.spatial import distance
+
 class GroupNorm(nn.Module):
     r"""Applies Group Normalization over a mini-batch of inputs as described in
     the paper `Group Normalization`_ .
