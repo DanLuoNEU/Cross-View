@@ -126,6 +126,7 @@ optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.spa
 scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50, 70], gamma=0.1)
 Criterion = torch.nn.CrossEntropyLoss()
 mseLoss = torch.nn.MSELoss()
+L1Loss = torch.nn.L1Loss()
 
 # Criterion = torch.nn.BCELoss()
 LOSS = []
@@ -188,6 +189,8 @@ for epoch in range(0, Epoch+1):
             'Full Model'
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
+            bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
+            bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
 
             if fusion:
                 label_rgb1[clip] = label_clip1['RGB']
@@ -202,12 +205,15 @@ for epoch in range(0, Epoch+1):
 
             # clipBI1[clip] = torch.sum(b1)/((2*N+1)*50)
             # clipBI1[clip] = binaryLoss(b1, gpu_id)
-            clipBI1[clip] = torch.norm(b1)
+            # clipBI1[clip] = torch.norm(b1)
+            clipBI1[clip] = L1Loss(b1, bi_gt1)
             clipMSE1[clip] = mseLoss(outClip_v1, v1_clip)
 
             # clipBI2[clip] = binaryLoss(b2, gpu_id)
             # clipBI2[clip] = torch.sum(b2)/((2*N+1)*50)
-            clipBI1[clip] = torch.norm(b2)
+            # clipBI1[clip] = torch.norm(b2)
+            clipBI2[clip] = L1Loss(b2, bi_gt2)
+            
             clipMSE2[clip] = mseLoss(outClip_v2, v2_clip)
 
             """""
