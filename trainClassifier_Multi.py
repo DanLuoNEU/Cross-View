@@ -16,7 +16,7 @@ from lossFunction import binaryLoss
 # torch.backends.cudnn.enabled = False
 from lossFunction import hashingLoss, CrossEntropyLoss
 
-gpu_id = 1
+gpu_id = 3
 num_workers = 2
 PRE = 0
 
@@ -41,7 +41,7 @@ Drr = torch.from_numpy(Drr).float()
 Dtheta = np.angle(P)
 Dtheta = torch.from_numpy(Dtheta).float()
 
-modelRoot = './ModelFile/crossViewModel/'
+modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
 saveModel = modelRoot + dataset + '/newDYAN/CV_dynamicsStream_CLOnly_ETE/'
