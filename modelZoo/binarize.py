@@ -7,7 +7,7 @@ from enum import Enum
 import torch
 from torch import nn
 from torch.nn import functional as F
-from sigmoid_module import Sigmoid
+from modelZoo.sigmoid_module import Sigmoid
 
 class Binarization(nn.Module):
     def __init__(

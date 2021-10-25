@@ -5,6 +5,7 @@ from modelZoo.sparseCoding import *
 from utils import *
 from modelZoo.actRGB import *
 from modelZoo.gumbel_module import *
+from modelZoo.binarize import Binarization
 from scipy.spatial import distance
 
 class GroupNorm(nn.Module):
@@ -275,17 +276,20 @@ class Fullclassification(nn.Module):
         self.dim = dim
         self.dataType = dataType
         # self.BinaryCoding = binaryCoding(num_binary=self.num_binary)
-        self.BinaryCoding = GumbelSigmoid()
+        #self.BinaryCoding = GumbelSigmoid()
+        self.BinaryCoding = Binarization(self.Npole)
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
+        print('self.gpu_id ',self.gpu_id)
         self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=0.1, gpu_id=self.gpu_id)
+
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
         sparseCode, Dict = self.sparseCoding(x, T)
-
+        print('sparseCode ',sparseCode)
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
         # binaryCode = self.BinaryCoding(inp)
-        binaryCode = self.BinaryCoding(sparseCode, force_hard=True, temperature=0.5, inference=self.Inference)
+        binaryCode = self.BinaryCoding(sparseCode)
         temp1 = sparseCode * binaryCode
 
         # binaryCode = binaryCode.t().reshape(self.num_binary, int(x.shape[-1]/self.dim), self.dim).unsqueeze(0)

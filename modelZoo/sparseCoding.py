@@ -177,6 +177,7 @@ def fista_new(D, Y, lambd,maxIter, gpu_id):
     return x_old
 
 def fista_reweighted(D, Y, lambd, w, maxIter,gpu_id):
+    print('fista gpu_id ',gpu_id)
     DtD = torch.matmul(torch.t(D), D)
     DtY = torch.matmul(torch.t(D), Y)
     # eig, v = torch.eig(DtD, eigenvectors=True)
@@ -207,6 +208,9 @@ def fista_reweighted(D, Y, lambd, w, maxIter,gpu_id):
         t_new = (1 + np.sqrt(1 + 4 * t_old ** 2)) / 2.
 
         tt = (t_old-1)/t_new
+        print('x_new ', x_new.get_device())
+        print('x_old ', x_old.get_device())
+        print('tt ', tt.get_device())
         y_new = x_new + torch.mul(tt, (x_new-x_old))  # y_new = x_new + ((t_old-1)/t_new) *(x_new-x_old)
         if torch.norm((x_old - x_new), p=2) / x_old.shape[1] < 1e-8:
             x_old = x_new
@@ -244,6 +248,7 @@ class DyanEncoder(nn.Module):
         # self.T = T
         self.lam = lam
         self.gpu_id = gpu_id
+        print('dyan self.gpu_id ',self.gpu_id)
 
     def forward(self, x,T):
         dic = creatRealDictionary(T, self.rr,self.theta, self.gpu_id)
