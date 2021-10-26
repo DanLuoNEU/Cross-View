@@ -46,16 +46,23 @@
 
 import torch
 import torch.nn as nn
-
+import pdb
 
 class HardSoftmax(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         y_hard = input.clone()
         y_hard = y_hard.zero_()
-        y_hard[input >= 0.6] = 1
-        y_hard[input <= 0.4] = 1
-        # y_hard[input>=0.5] =1
+        a = torch.mean(input).data.item()
+        b = 1-a
+        if a < b:
+            y_hard[input > b] = 1
+            y_hard[input <= a] = 1
+        else:
+            y_hard[input > a] = 1
+            y_hard[input <= b] = 1
+
+        # y_hard[input > 0.6] =1
 
         return y_hard
 
@@ -69,7 +76,6 @@ class GumbelSigmoid(torch.nn.Module):
         """
         Implementation of gumbel softmax for a binary case using gumbel sigmoid.
         """
-        print("Gumbel ...")
         super(GumbelSigmoid, self).__init__()
         self.sigmoid = nn.Sigmoid()
 
@@ -88,15 +94,16 @@ class GumbelSigmoid(torch.nn.Module):
             gumbel_trick_log_prob_samples = logits + gumbel_samples_tensor.data
         else:
             gumbel_trick_log_prob_samples = logits
-        soft_samples = self.sigmoid(gumbel_trick_log_prob_samples / temperature)
 
+        soft_samples = self.sigmoid(gumbel_trick_log_prob_samples / temperature)
+        # pdb.set_trace()
         return soft_samples
 
     def gumbel_sigmoid(self, logits, temperature=2 / 3, hard=False, inference=False):
         out = self.gumbel_sigmoid_sample(logits, temperature, inference)
         if hard:
             out = HardSoftmax.apply(out)
-
+        # pdb.set_trace()
         return out
 
     def forward(self, logits, force_hard=False, temperature=2 / 3, inference=False):
@@ -118,6 +125,6 @@ if __name__ == '__main__':
 
     # logits = torch.randn(1, 161)
     logits = torch.tensor([0.001, -0.001, 0.12, 0.04, 0.0001])
-    out = gumbelSigmoid(logits, force_hard=True, temperature=0.5, inference=True)
+    out = gumbelSigmoid(logits, force_hard=True, temperature=0.01, inference=True)
 
     print('check')
