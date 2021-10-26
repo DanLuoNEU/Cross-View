@@ -53,8 +53,17 @@ class HardSoftmax(torch.autograd.Function):
     def forward(ctx, input):
         y_hard = input.clone()
         y_hard = y_hard.zero_()
-        y_hard[input >= 0.6] = 1
-        y_hard[input <= 0.4] = 1
+        a = torch.mean(input).data.item()
+        b = 1-a
+        if a < b:
+            y_hard[input > b] = 1
+            y_hard[input <= a] = 1
+        else:
+            y_hard[input > a] = 1
+            y_hard[input <= b] = 1
+
+        # y_hard[input >= 0.6] = 1
+        # y_hard[input <= 0.4] = 1
         # y_hard[input>=0.5] =1
 
         return y_hard
@@ -117,6 +126,6 @@ if __name__ == '__main__':
 
     # logits = torch.randn(1, 161)
     logits = torch.tensor([0.001, -0.001, 0.12, 0.04, 0.0001])
-    out = gumbelSigmoid(logits, force_hard=True, temperature=0.5, inference=True)
+    out = gumbelSigmoid(logits, force_hard=True, temperature=0.01, inference=True)
 
     print('check')

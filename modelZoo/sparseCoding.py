@@ -182,7 +182,9 @@ def fista_reweighted(D, Y, lambd, w, maxIter,gpu_id):
     # eig, v = torch.eig(DtD, eigenvectors=True)
     # eig, v = torch.linalg.eig(DtD)
     # L = torch.max(eig)
-    L = torch.norm(DtD, 2)
+    # L = torch.norm(DtD, 2)
+    eigs = torch.abs(torch.linalg.eigvals(DtD.cpu()))
+    L = torch.max(eigs)
     Linv = 1/L
     weightedLambd = (w*lambd) * Linv.data.item()
     x_old = torch.zeros(DtD.shape[1], DtY.shape[2]).cuda(gpu_id)
@@ -208,7 +210,7 @@ def fista_reweighted(D, Y, lambd, w, maxIter,gpu_id):
 
         tt = (t_old-1)/t_new
         y_new = x_new + torch.mul(tt, (x_new-x_old))  # y_new = x_new + ((t_old-1)/t_new) *(x_new-x_old)
-        if torch.norm((x_old - x_new), p=2) / x_old.shape[1] < 1e-8:
+        if torch.norm((x_old - x_new), p=2) / x_old.shape[1] < 1e-5:
             x_old = x_new
             break
 
@@ -250,11 +252,12 @@ class DyanEncoder(nn.Module):
         # print('rr:', self.rr, 'theta:', self.theta)
         # sparsecode = fista_new(dic,x,self.lam, 200,self.gpu_id)
         i = 0
-        w_init = torch.ones(1, dic.shape[1], x.shape[2])
-        while i < 3:
-            temp = fista_reweighted(dic, x, self.lam, w_init, 200, self.gpu_id)
+        w_init = torch.ones(1, dic.shape[1], x.shape[2]).cuda(self.gpu_id)
+        while i < 2:
+            temp = fista_reweighted(dic, x, self.lam, w_init, 100, self.gpu_id)
             w = 1 / (torch.abs(temp) + 1e-2)
-            w_init = w/torch.norm(w)
+            # w_init = w/torch.norm(w)
+            w_init = (w/torch.norm(w)) * dic.shape[1]
             final = temp
             del temp
             i += 1

@@ -116,16 +116,17 @@ class binaryCoding(nn.Module):
         return x
 
 class binarizeSparseCode(nn.Module):
-    def __init__(self, num_binary, Drr, Dtheta, gpu_id, Inference):
+    def __init__(self, num_binary, Drr, Dtheta, gpu_id, Inference, fistaLam):
         super(binarizeSparseCode, self).__init__()
         self.k = num_binary
         self.Drr = Drr
         self.Dtheta = Dtheta
         self.Inference = Inference
         self.gpu_id = gpu_id
+        self.fistaLam = fistaLam
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
         # self.binaryCoding = binaryCoding(num_binary=self.k)
-        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta, lam=1, gpu_id=self.gpu_id)
+        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta, lam=fistaLam, gpu_id=self.gpu_id)
         self.binaryCoding = GumbelSigmoid()
 
     def forward(self, x, T):
@@ -135,7 +136,7 @@ class binarizeSparseCode(nn.Module):
         # binaryCode = self.binaryCoding(sparseCode)
 
         # reconstruction = torch.matmul(Dict, sparseCode)
-        binaryCode = self.binaryCoding(sparseCode, force_hard=True, temperature=0.5, inference=self.Inference)
+        binaryCode = self.binaryCoding(sparseCode, force_hard=True, temperature=0.1, inference=self.Inference)
 
         # temp = sparseCode*binaryCode
         return binaryCode, sparseCode, Dict
@@ -254,7 +255,7 @@ class classificationWSparseCode(nn.Module):
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T) # old-version
         sparseCode, Dict = self.sparseCoding(x, T)
-        Reconstruction = torch.matmul(Dict, sparseCode)
+        Reconstruction = torch.matmul(Dict, sparseCode)   # sparseCode.detach()
         c = sparseCode.reshape(1, self.Npole, int(x.shape[-1]/self.dim), self.dim)
         label = self.Classifier(c)
 
@@ -262,7 +263,7 @@ class classificationWSparseCode(nn.Module):
 
 
 class Fullclassification(nn.Module):
-    def __init__(self, num_class, Npole, num_binary, Drr, Dtheta,dim, dataType, Inference, gpu_id):
+    def __init__(self, num_class, Npole, num_binary, Drr, Dtheta,dim, dataType, Inference, gpu_id, fistaLam):
         super(Fullclassification, self).__init__()
         self.num_class = num_class
         self.Npole = Npole
@@ -273,18 +274,22 @@ class Fullclassification(nn.Module):
         self.gpu_id = gpu_id
         self.dim = dim
         self.dataType = dataType
+        self.fistaLam = fistaLam
         # self.BinaryCoding = binaryCoding(num_binary=self.num_binary)
         self.BinaryCoding = GumbelSigmoid()
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
-        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=0.1, gpu_id=self.gpu_id)
+        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=fistaLam, gpu_id=self.gpu_id)
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
         sparseCode, Dict = self.sparseCoding(x, T)
 
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
         # binaryCode = self.BinaryCoding(inp)
-        binaryCode = self.BinaryCoding(sparseCode, force_hard=True, temperature=0.5, inference=self.Inference)
+
+        sparseCode = sparseCode.detach()
+        binaryCode = self.BinaryCoding(sparseCode*2, force_hard=True, temperature=0.1, inference=self.Inference)
+        
         temp1 = sparseCode * binaryCode
 
         # binaryCode = binaryCode.t().reshape(self.num_binary, int(x.shape[-1]/self.dim), self.dim).unsqueeze(0)

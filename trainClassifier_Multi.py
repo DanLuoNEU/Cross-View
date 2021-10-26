@@ -23,10 +23,10 @@ PRE = 0
 T = 36
 dataset = 'NUCLA'
 # dataset = 'NTU'
-Alpha = 0.01
+Alpha = 0.1
 # for BI
-lam1 = 1  # for CL
-lam2 = 0.01 # for MSE
+lam1 = 2  # for CL
+lam2 = 1 # for MSE
 
 N = 40*2
 Epoch = 100
@@ -90,7 +90,7 @@ elif dataset == 'NTU':
                                 root_list="/data/Yuexi/NTU-RGBD/list/", nanList=nanList, dataType= dataType, clip=clip,
                                 phase='train', T=36, target_view='C002', project_view='C003', test_view='C001')
 
-    trainloader = torch.utils.data.DataLoader(trainSet, batch_size=1, shuffle=False, num_workers=4, pin_memory=True)
+    trainloader = torch.utils.data.DataLoader(trainSet, batch_size=1, shuffle=False, num_workers=2, pin_memory=True)
 
     valSet = NTURGBD_viewProjection(root_skeleton=root_skeleton,
                                 root_list="/data/Yuexi/NTU-RGBD/list/", nanList=nanList, dataType= dataType, clip=clip,
@@ -101,7 +101,8 @@ elif dataset == 'NTU':
 # net = classificationHead(num_class=10, Npole=(N+1)).cuda(gpu_id)
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True, gpu_id=gpu_id).cuda(gpu_id)
+net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True,
+                         gpu_id=gpu_id, fistaLam=0.5).cuda(gpu_id)
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
@@ -126,8 +127,7 @@ optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.spa
 scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50, 70], gamma=0.1)
 Criterion = torch.nn.CrossEntropyLoss()
 mseLoss = torch.nn.MSELoss()
-L1Loss = torch.nn.L1Loss()
-
+L1loss = torch.nn.L1Loss()
 # Criterion = torch.nn.BCELoss()
 LOSS = []
 ACC = []
@@ -206,14 +206,13 @@ for epoch in range(0, Epoch+1):
             # clipBI1[clip] = torch.sum(b1)/((2*N+1)*50)
             # clipBI1[clip] = binaryLoss(b1, gpu_id)
             # clipBI1[clip] = torch.norm(b1)
-            clipBI1[clip] = L1Loss(b1, bi_gt1)
+            clipBI1[clip] = L1loss(b1, bi_gt1)
             clipMSE1[clip] = mseLoss(outClip_v1, v1_clip)
 
             # clipBI2[clip] = binaryLoss(b2, gpu_id)
             # clipBI2[clip] = torch.sum(b2)/((2*N+1)*50)
             # clipBI1[clip] = torch.norm(b2)
-            clipBI2[clip] = L1Loss(b2, bi_gt2)
-            
+            clipBI2[clip] = L1loss(b2, bi_gt2)
             clipMSE2[clip] = mseLoss(outClip_v2, v2_clip)
 
             """""
