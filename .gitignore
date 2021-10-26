@@ -13,6 +13,7 @@ log_new/
 logfile/
 matFile/
 matFile_new/
+ModelFile/
 plotDict/
 runs/
 vis/
