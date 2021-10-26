@@ -15,8 +15,10 @@ from modelZoo.BinaryCoding import *
 from lossFunction import binaryLoss
 # torch.backends.cudnn.enabled = False
 from lossFunction import hashingLoss, CrossEntropyLoss
+import random
+import time
 
-gpu_id = 3
+gpu_id = 2
 num_workers = 2
 PRE = 0
 
@@ -127,6 +129,7 @@ scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50, 70], gamma=0.1)
 Criterion = torch.nn.CrossEntropyLoss()
 mseLoss = torch.nn.MSELoss()
 L1Loss = torch.nn.L1Loss()
+#L1Loss = torch.nn.BCELoss()
 
 # Criterion = torch.nn.BCELoss()
 LOSS = []
@@ -134,6 +137,7 @@ ACC = []
 print('training dataset:', dataset)
 # print('cls:bi:reconst=2:0.3:1')
 for epoch in range(0, Epoch+1):
+    start = time.time()
     print('start training epoch:', epoch)
     lossVal = []
     lossCls = []
@@ -189,6 +193,18 @@ for epoch in range(0, Epoch+1):
             'Full Model'
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
+            
+            if i==0 and clip==0:
+                print('**** c1 ****')
+                idx = random.randint(0, c1.shape[2]-1)
+                print('idx ',idx)
+                net.get_sparse_stats(c1, idx)
+
+                print('**** c2 ****')
+                idx = random.randint(0, c2.shape[2]-1)
+                print('idx ',idx)
+                net.get_sparse_stats(c2, idx)
+
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
 
@@ -270,7 +286,8 @@ for epoch in range(0, Epoch+1):
     # LOSS.append(loss_val)
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|mse:', np.mean(np.array(lossMSE)))
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)))
-    print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
+    train_mins = (time.time() - start) / 60 # 1 epoch training 
+    print('time:', round(train_mins, 3), ' epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
           '|mse:', np.mean(np.array(lossMSE)))
     # print('epoch:', epoch, '|loss:', loss_val)
     scheduler.step()
@@ -280,7 +297,7 @@ for epoch in range(0, Epoch+1):
     #                 'optimizer': optimizer.state_dict()}, saveModel + str(epoch) + '.pth')
 
 
-    if epoch % 10 == 0:
+    if epoch % 10 == -1:
         print('start validating:')
         count = 0
         pred_cnt = 0

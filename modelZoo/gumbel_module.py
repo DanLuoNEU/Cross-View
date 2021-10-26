@@ -69,6 +69,7 @@ class GumbelSigmoid(torch.nn.Module):
         """
         Implementation of gumbel softmax for a binary case using gumbel sigmoid.
         """
+        print("Gumbel ...")
         super(GumbelSigmoid, self).__init__()
         self.sigmoid = nn.Sigmoid()
 

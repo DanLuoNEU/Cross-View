@@ -276,17 +276,25 @@ class Fullclassification(nn.Module):
         self.dim = dim
         self.dataType = dataType
         # self.BinaryCoding = binaryCoding(num_binary=self.num_binary)
-        #self.BinaryCoding = GumbelSigmoid()
-        self.BinaryCoding = Binarization(self.Npole)
+        self.BinaryCoding = GumbelSigmoid()
+        #self.BinaryCoding = Binarization(self.Npole)
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
-        print('self.gpu_id ',self.gpu_id)
         self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=0.1, gpu_id=self.gpu_id)
 
+    def get_sparse_stats(self, sparse_tensor, idx):
+        
+        sparse = sparse_tensor.clone()
+        sparse = torch.abs(sparse)        
+        print('sparse min', torch.min(sparse[0,:,idx]), flush=True)
+        print('sparse max', torch.max(sparse[0,:,idx]), flush=True)
+        print('sparse sort 1 sample', torch.sort(sparse[0,:,idx])[0], flush=True)
+
     def forward(self, x, T):
+
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
         sparseCode, Dict = self.sparseCoding(x, T)
-        print('sparseCode ',sparseCode)
+
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
         # binaryCode = self.BinaryCoding(inp)
         binaryCode = self.BinaryCoding(sparseCode)
@@ -373,6 +381,7 @@ if __name__ == '__main__':
 
 
     print('check')
+
 
 
 
