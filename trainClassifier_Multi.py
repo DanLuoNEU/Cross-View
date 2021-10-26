@@ -15,6 +15,8 @@ from modelZoo.BinaryCoding import *
 from lossFunction import binaryLoss
 # torch.backends.cudnn.enabled = False
 from lossFunction import hashingLoss, CrossEntropyLoss
+import time
+
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
@@ -44,7 +46,7 @@ Drr = torch.from_numpy(Drr).float()
 Dtheta = np.angle(P)
 Dtheta = torch.from_numpy(Dtheta).float()
 
-modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/org/Cross-View/models/'
+modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
 saveModel = modelRoot + dataset + '/1025/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
@@ -139,6 +141,7 @@ print('alpha:', Alpha, 'lam1:', lam1, 'lam2:', lam2)
 # print('cls:bi:reconst=2:0.3:1')
 for epoch in range(0, Epoch+1):
     print('start training epoch:', epoch)
+    start = time.time()
     lossVal = []
     lossCls = []
     lossBi = []
@@ -193,6 +196,18 @@ for epoch in range(0, Epoch+1):
             'Full Model'
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
+
+            if i==0 and clip==0:
+                print('**** c1 ****')
+                idx = random.randint(0, c1.shape[2]-1)
+                print('idx ',idx)
+                net.get_sparse_stats(c1, idx)
+
+                print('**** c2 ****')
+                idx = random.randint(0, c2.shape[2]-1)
+                print('idx ',idx)
+                net.get_sparse_stats(c2, idx)
+
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
 
@@ -210,7 +225,6 @@ for epoch in range(0, Epoch+1):
             # clipBI1[clip] = torch.sum(b1)/((2*N+1)*50)
             # clipBI1[clip] = binaryLoss(b1, gpu_id)
             clipBI1[clip] = L1loss(b1, bi_gt1)
-
             clipMSE1[clip] = mseLoss(outClip_v1, v1_clip)
 
             # clipBI2[clip] = binaryLoss(b2, gpu_id)
@@ -275,7 +289,8 @@ for epoch in range(0, Epoch+1):
     # LOSS.append(loss_val)
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|mse:', np.mean(np.array(lossMSE)))
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)))
-    print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
+    train_mins = (time.time() - start) / 60 # 1 epoch training 
+    print('time: ', round(train_mins, 3), ' epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
           '|mse:', np.mean(np.array(lossMSE)))
     # print('epoch:', epoch, '|loss:', loss_val)
     scheduler.step()
