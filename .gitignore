@@ -3,6 +3,7 @@
 !requirements.txt
 *.mat
 *.m
+*.pth
 
 */__pycache__/
 __pycache__/

@@ -24,8 +24,10 @@ torch.manual_seed(0)
 gpu_id = 3
 num_workers = 2
 PRE = 0
-
-T = 72
+print('gpu_id: ',gpu_id)
+print('num_workers: ',num_workers)
+T = 36
+print('T: ',T)
 dataset = 'NUCLA'
 # dataset = 'NTU'
 Alpha = 0.1
@@ -49,7 +51,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1025/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/1026_3/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
 if not os.path.exists(saveModel):
     os.makedirs(saveModel)
 map_location = torch.device(gpu_id)
@@ -139,6 +141,7 @@ ACC = []
 print('training dataset:', dataset)
 print('alpha:', Alpha, 'lam1:', lam1, 'lam2:', lam2)
 # print('cls:bi:reconst=2:0.3:1')
+torch.autograd.set_detect_anomaly(True)
 for epoch in range(0, Epoch+1):
     print('start training epoch:', epoch)
     start = time.time()
@@ -290,8 +293,9 @@ for epoch in range(0, Epoch+1):
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|mse:', np.mean(np.array(lossMSE)))
     # print('epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)))
     train_mins = (time.time() - start) / 60 # 1 epoch training 
-    print('time: ', round(train_mins, 3), ' epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
+    print(' epoch:', epoch, '|loss:', loss_val, '|cls:', np.mean(np.array(lossCls)), '|Bi:', np.mean(np.array(lossBi)),
           '|mse:', np.mean(np.array(lossMSE)))
+    print('time: ', round(train_mins, 3)) 
     # print('epoch:', epoch, '|loss:', loss_val)
     scheduler.step()
 

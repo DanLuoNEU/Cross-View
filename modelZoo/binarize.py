@@ -15,7 +15,8 @@ class Binarization(nn.Module):
         in_channels: int,
     ):
         super(Binarization, self).__init__()
-    
+
+        print('******New Binarization******')
         self.gs = Sigmoid()
         self.in_channels = in_channels
 

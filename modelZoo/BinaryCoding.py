@@ -6,6 +6,8 @@ from utils import *
 from modelZoo.actRGB import *
 from modelZoo.gumbel_module import *
 from scipy.spatial import distance
+from modelZoo.binarize import Binarization
+
 class GroupNorm(nn.Module):
     r"""Applies Group Normalization over a mini-batch of inputs as described in
     the paper `Group Normalization`_ .
@@ -277,6 +279,7 @@ class Fullclassification(nn.Module):
         self.fistaLam = fistaLam
         # self.BinaryCoding = binaryCoding(num_binary=self.num_binary)
         self.BinaryCoding = GumbelSigmoid()
+        #self.BinaryCoding = Binarization(self.Npole)
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
         self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=fistaLam, gpu_id=self.gpu_id)
@@ -299,6 +302,7 @@ class Fullclassification(nn.Module):
         # sparseCode = sparseCode**2
         # pdb.set_trace()
         sparseCode = sparseCode.detach()
+        #binaryCode = self.BinaryCoding(sparseCode)
         binaryCode = self.BinaryCoding(sparseCode*2, force_hard=True, temperature=0.1, inference=self.Inference)
 
         temp1 = sparseCode * binaryCode
