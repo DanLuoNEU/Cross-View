@@ -1,0 +1,22 @@
+gpu_id:  3
+num_workers:  2
+T:  36
+===train: 50samples ===
+===test: 100samples ===
+training dataset: NUCLA
+alpha: 0.1 lam1: 2 lam2: 1
+start training epoch: 0
+Traceback (most recent call last):
+  File "trainClassifier_Multi.py", line 200, in <module>
+    label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/BinaryCoding.py", line 297, in forward
+    sparseCode, Dict = self.sparseCoding(x, T)
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/module.py", line 489, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/sparseCoding.py", line 263, in forward
+    temp = fista_reweighted(dic, x, self.lam, w_init, 100, self.gpu_id)
+  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/sparseCoding.py", line 187, in fista_reweighted
+    eigs = torch.abs(torch.linalg.eigvals(DtD.cpu()))
+AttributeError: module 'torch' has no attribute 'linalg'
