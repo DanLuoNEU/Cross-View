@@ -21,7 +21,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-gpu_id = 3
+gpu_id = 0
 num_workers = 2
 PRE = 0
 print('gpu_id: ',gpu_id)
@@ -200,7 +200,7 @@ for epoch in range(0, Epoch+1):
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
 
-            if i==0 and clip==0:
+            if i%10==0 and clip==0:
                 print('**** c1 ****')
                 idx = random.randint(0, c1.shape[2]-1)
                 print('idx ',idx)
@@ -210,6 +210,9 @@ for epoch in range(0, Epoch+1):
                 idx = random.randint(0, c2.shape[2]-1)
                 print('idx ',idx)
                 net.get_sparse_stats(c2, idx)
+
+                print('b1 stats ', torch.min(b1), torch.max(b1), flush=True)
+                print('b2 stats ', torch.min(b2), torch.max(b2), flush=True)
 
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)

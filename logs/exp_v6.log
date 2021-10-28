@@ -71,29 +71,5 @@ sparse sort 1 sample tensor([0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0
         3.4624e-02, 3.4885e-02, 3.5344e-02, 3.6931e-02, 3.7092e-02, 3.7507e-02,
         6.1628e-02, 6.3666e-02, 7.8444e-02, 9.4707e-02, 1.6094e-01],
        device='cuda:0')
-[W python_anomaly_mode.cpp:104] Warning: Error detected in NativeGroupNormBackward. Traceback of forward call that caused the error:
-  File "trainClassifier_Multi.py", line 201, in <module>
-    label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
-    return forward_call(*input, **kwargs)
-  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/BinaryCoding.py", line 313, in forward
-    label = self.Classifier(temp)
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
-    return forward_call(*input, **kwargs)
-  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/BinaryCoding.py", line 207, in forward
-    x = self.gn3(x)
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
-    return forward_call(*input, **kwargs)
-  File "/home/balaji/Documents/code/RSL/CS_CV/Cross-View/modelZoo/BinaryCoding.py", line 68, in forward
-    input, self.num_groups, self.weight, self.bias, self.eps)
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/nn/functional.py", line 2359, in group_norm
-    return torch.group_norm(input, num_groups, weight, bias, eps, torch.backends.cudnn.enabled)
- (function _print_stack)
-Traceback (most recent call last):
-  File "trainClassifier_Multi.py", line 281, in <module>
-    loss.backward()
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/_tensor.py", line 255, in backward
-    torch.autograd.backward(self, gradient, retain_graph, create_graph, inputs=inputs)
-  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/autograd/__init__.py", line 149, in backward
-    allow_unreachable=True, accumulate_grad=True)  # allow_unreachable flag
-RuntimeError: Function 'NativeGroupNormBackward' returned nan values in its 0th output.
+b1 stats  tensor(0., device='cuda:0', grad_fn=<MinBackward1>) tensor(1., device='cuda:0', grad_fn=<MaxBackward1>)
+b2 stats  tensor(0., device='cuda:0', grad_fn=<MinBackward1>) tensor(1., device='cuda:0', grad_fn=<MaxBackward1>)
