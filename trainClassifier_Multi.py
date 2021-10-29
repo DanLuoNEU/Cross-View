@@ -16,6 +16,7 @@ from lossFunction import binaryLoss
 # torch.backends.cudnn.enabled = False
 from lossFunction import hashingLoss, CrossEntropyLoss
 import time
+import stats
 
 random.seed(0)
 np.random.seed(0)
@@ -51,10 +52,18 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1026_3/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
-if not os.path.exists(saveModel):
-    os.makedirs(saveModel)
+saveModel = modelRoot + dataset + '/1028/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+fig_save_path = os.path.join(saveModel, 'plots')
+if not os.path.exists(fig_save_path):
+    os.makedirs(fig_save_path)
+
+lst_path1 = fig_save_path + '/sparse_data_c1.lst'
+lst_writer1 = open(lst_path1, mode='w+')
+lst_path2 = fig_save_path + '/sparse_data_c2.lst'
+lst_writer2 = open(lst_path2, mode='w+')
+
 map_location = torch.device(gpu_id)
+
 # modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
 
 'load pre-trained DYAN'
@@ -200,19 +209,9 @@ for epoch in range(0, Epoch+1):
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
 
-            if i%10==0 and clip==0:
-                print('**** c1 ****')
-                idx = random.randint(0, c1.shape[2]-1)
-                print('idx ',idx)
-                net.get_sparse_stats(c1, idx)
-
-                print('**** c2 ****')
-                idx = random.randint(0, c2.shape[2]-1)
-                print('idx ',idx)
-                net.get_sparse_stats(c2, idx)
-
-                print('b1 stats ', torch.min(b1), torch.max(b1), flush=True)
-                print('b2 stats ', torch.min(b2), torch.max(b2), flush=True)
+            if i%5==0 and clip==0:
+                stats.write_data(lst_writer1, c1, delimiter=',')
+                stats.write_data(lst_writer2, c2, delimiter=',')
 
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)

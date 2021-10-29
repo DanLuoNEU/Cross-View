@@ -1,4 +1,4 @@
-VERSION=v6
+VERSION=v7
 LOGFILE=logs/exp_${VERSION}.log
 
 python3 trainClassifier_Multi.py > "$LOGFILE" 2>&1 &

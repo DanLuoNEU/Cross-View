@@ -1,0 +1,20 @@
+gpu_id:  0
+num_workers:  2
+T:  36
+===train: 50samples ===
+===test: 100samples ===
+training dataset: NUCLA
+alpha: 0.1 lam1: 2 lam2: 1
+start training epoch: 0
+ epoch: 0 |loss: 76.69176431789994 |cls: 38.108510214375535 |Bi: 0.562881590873003 |mse: 0.41845409232191744
+time:  14.296
+start training epoch: 1
+ epoch: 1 |loss: 22.88408219240606 |cls: 11.204785210442264 |Bi: 0.5632095389068127 |mse: 0.41819048233795914
+time:  14.502
+start training epoch: 2
+ epoch: 2 |loss: 3.3873543279618024 |cls: 1.454469662794727 |Bi: 0.5634240345656871 |mse: 0.4220724873873405
+time:  13.705
+start training epoch: 3
+ epoch: 3 |loss: 1.7454129433631898 |cls: 0.6349620052872342 |Bi: 0.5636244447529316 |mse: 0.4191265336284414
+time:  13.828
+start training epoch: 4
