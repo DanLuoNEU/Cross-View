@@ -8,3 +8,9 @@ load pretrain binarization module
 training dataset: NUCLA
 alpha: 0.1 lam1: 2 lam2: 1
 start training epoch: 0
+ epoch: 0 |loss: 86.68836461186409 |cls: 42.23939273178578 |Bi: 1.274905217885971 |mse: 2.0820901280641557
+time:  3.24
+start training epoch: 1
+ epoch: 1 |loss: 22.32722318649292 |cls: 10.110627773868146 |Bi: 1.2752443468570709 |mse: 1.9784437021613122
+time:  3.227
+start training epoch: 2
