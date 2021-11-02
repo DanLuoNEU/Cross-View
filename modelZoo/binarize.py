@@ -27,13 +27,30 @@ class Binarization(nn.Module):
         self.gate_network = nn.Sequential(*self.gating_layers)
         self.init_weights()
 
-    def init_weights(self, gate_bias_init: float = 0.0) -> None:
+    def load_weights_standalone(self):
 
-        for i in range(len(self.gating_layers)):
+        model_path = '/home/balaji/Documents/code/RSL/gumbel/models/exp10/148.pth'
+        state_dict = torch.load(model_path, map_location=torch.device(3))#
+        fc_weight = state_dict['gate_network.0.weight']
+        fc_bias = state_dict['gate_network.0.bias']
+        
+        return fc_weight, fc_bias
 
-            fc = self.gate_network[i]
-            torch.nn.init.xavier_uniform_(fc.weight)
-            fc.bias.data.fill_(gate_bias_init)
+    def init_weights(self, gate_bias_init: float = 0.0, pretrain=1) -> None:
+        
+        if pretrain:
+            print('load pretrain binarization module')
+            fc_weight, fc_bias = self.load_weights_standalone()
+            fc = self.gate_network[0]
+            fc.weight = torch.nn.Parameter(fc_weight)
+            fc.bias = torch.nn.Parameter(fc_bias)
+            
+        else:
+            for i in range(len(self.gating_layers)):
+
+                fc = self.gate_network[i]
+                torch.nn.init.xavier_uniform_(fc.weight)
+                fc.bias.data.fill_(gate_bias_init)
 
     def forward(self, gate_inp: torch.Tensor) -> torch.Tensor:
         """Gumbel gates, Eq (8)"""

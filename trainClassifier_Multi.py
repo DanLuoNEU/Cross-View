@@ -22,7 +22,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-gpu_id = 0
+gpu_id = 3
 num_workers = 2
 PRE = 0
 print('gpu_id: ',gpu_id)
@@ -52,7 +52,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1028/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/1102/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)
@@ -61,6 +61,11 @@ lst_path1 = fig_save_path + '/sparse_data_c1.lst'
 lst_writer1 = open(lst_path1, mode='w+')
 lst_path2 = fig_save_path + '/sparse_data_c2.lst'
 lst_writer2 = open(lst_path2, mode='w+')
+
+lst_pathb1 = fig_save_path + '/sparse_data_b1.lst'
+lst_writerb1 = open(lst_pathb1, mode='w+')
+lst_pathb2 = fig_save_path + '/sparse_data_b2.lst'
+lst_writerb2 = open(lst_pathb2, mode='w+')
 
 map_location = torch.device(gpu_id)
 
@@ -212,6 +217,8 @@ for epoch in range(0, Epoch+1):
             if i%5==0 and clip==0:
                 stats.write_data(lst_writer1, c1, delimiter=',')
                 stats.write_data(lst_writer2, c2, delimiter=',')
+                stats.write_data(lst_writerb1, b1, delimiter=',')
+                stats.write_data(lst_writerb2, b2, delimiter=',')
 
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
