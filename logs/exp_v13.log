@@ -1,0 +1,39 @@
+gpu_id:  1
+num_workers:  4
+T:  36
+===train: 100samples ===
+===test: 50samples ===
+training dataset: NUCLA
+alpha: 0.1 lam1: 2 lam2: 1
+start training epoch: 0
+ epoch: 0 |loss: 48.74569858655334 |cls: 24.094001709764715 |Bi: 0.9408675259351731 |mse: 0.46360878461346144
+time:  5.498
+start validating:
+epoch: 0 Acc:0.0800 count: 50 pred_cnt: 4
+start training epoch: 1
+ epoch: 1 |loss: 5.654443554878235 |cls: 2.5499597644619643 |Bi: 0.9373627633601427 |mse: 0.4607877758948598
+time:  7.856
+start training epoch: 2
+ epoch: 2 |loss: 4.3445799261331555 |cls: 1.8950034197792411 |Bi: 0.9394503394514322 |mse: 0.46062803978755257
+time:  7.862
+start training epoch: 3
+ epoch: 3 |loss: 4.0316322416067125 |cls: 1.7394798358064145 |Bi: 0.9391917498409748 |mse: 0.45875340941027387
+time:  7.945
+start training epoch: 4
+ epoch: 4 |loss: 3.648376384973526 |cls: 1.5487531529925764 |Bi: 0.9375490985810757 |mse: 0.4571151593553077
+time:  7.812
+start training epoch: 5
+ epoch: 5 |loss: 3.514034793674946 |cls: 1.4822132270736619 |Bi: 0.9400658709555865 |mse: 0.4556017594224249
+time:  7.556
+start validating:
+epoch: 5 Acc:0.2200 count: 50 pred_cnt: 11
+start training epoch: 6
+ epoch: 6 |loss: 2.698809183835983 |cls: 1.076239426729735 |Bi: 0.9402609016001224 |mse: 0.4523042291705497
+time:  7.643
+start training epoch: 7
+ epoch: 7 |loss: 1.714215125888586 |cls: 0.5849630929315753 |Bi: 0.9389362640678882 |mse: 0.450395311647153
+time:  5.562
+start training epoch: 8
+ epoch: 8 |loss: 1.5144041347503663 |cls: 0.4854908302302829 |Bi: 0.9412693901360035 |mse: 0.449295532025717
+time:  5.647
+start training epoch: 9

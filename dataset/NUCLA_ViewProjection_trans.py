@@ -153,7 +153,7 @@ class NUCLA_viewProjection(tudata.Dataset):
             if item in self.project_list:
                 self.samples_list.append(item)
 
-        self.samples_list = self.samples_list[:50]
+        self.samples_list = self.samples_list[:100]
 
         'if use view 3'
 
@@ -173,10 +173,9 @@ class NUCLA_viewProjection(tudata.Dataset):
                     temp.append(item)
 
             # self.samples_list = temp
-            self.samples_list = random.sample(temp, 100)
+            self.samples_list = random.sample(temp, 50)
             # self.samples_list = temp[0:100]
 
-        
 
         # elif self.phase == 'val':
         #     self.val_list = []

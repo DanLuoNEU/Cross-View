@@ -1,0 +1,11 @@
+gpu_id:  1
+num_workers:  4
+T:  36
+===train: 100samples ===
+===test: 50samples ===
+******New Binarization******
+old softmax
+load pretrain binarization module
+training dataset: NUCLA
+alpha: 0.1 lam1: 2 lam2: 1
+start training epoch: 0

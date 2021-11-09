@@ -22,8 +22,8 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-gpu_id = 3
-num_workers = 2
+gpu_id = 1
+num_workers = 4
 PRE = 0
 print('gpu_id: ',gpu_id)
 print('num_workers: ',num_workers)
@@ -52,7 +52,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1102_1/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/1109/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)
@@ -66,6 +66,11 @@ lst_pathb1 = fig_save_path + '/sparse_data_b1.lst'
 lst_writerb1 = open(lst_pathb1, mode='w+')
 lst_pathb2 = fig_save_path + '/sparse_data_b2.lst'
 lst_writerb2 = open(lst_pathb2, mode='w+')
+
+lst_path = fig_save_path + '/sparse_data_c.lst'
+lst_writer = open(lst_path, mode='w+')
+lst_pathb = fig_save_path + '/sparse_data_b.lst'
+lst_writerb = open(lst_pathb, mode='w+')
 
 map_location = torch.device(gpu_id)
 
@@ -123,7 +128,7 @@ elif dataset == 'NTU':
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
 net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True,
-                         gpu_id=gpu_id, fistaLam=0.5).cuda(gpu_id)
+                         gpu_id=gpu_id, fistaLam=0.1).cuda(gpu_id)
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
@@ -312,13 +317,13 @@ for epoch in range(0, Epoch+1):
         torch.save({'epoch': epoch + 1, 'state_dict': net.state_dict(),
                     'optimizer': optimizer.state_dict()}, saveModel + str(epoch) + '.pth')
 
-    if epoch % 5 == -1:
+    if epoch % 5 == 0:
         print('start validating:')
         count = 0
         pred_cnt = 0
         Acc = []
         with torch.no_grad():
-            for i, sample in enumerate(valloader):
+            for j, sample in enumerate(valloader):
                 # input = sample['test_view_multiClips'].float().cuda(gpu_id)
                 inputSkeleton = sample['input_skeleton'].float().cuda(gpu_id)
 
@@ -328,6 +333,7 @@ for epoch in range(0, Epoch+1):
                 t = inputSkeleton.shape[2]
                 y = sample['action'].data.item()
                 label = torch.zeros(inputSkeleton.shape[1], num_class)
+                
                 for i in range(0, inputSkeleton.shape[1]):
 
                     input_clip = inputSkeleton[:,i, :, :, :].reshape(1, t, -1)
@@ -340,7 +346,11 @@ for epoch in range(0, Epoch+1):
                     else:
                         # label_clip, _, _ = net(input_clip, inputImg_clip, t, fusion)
                         # label_clip,_ = net(input_clip, t) #DY
-                        label_clip, _, _, _ = net(input_clip, t) # DY+BI
+                        label_clip, b, out_clip, c = net(input_clip, t) # DY+BI
+
+                        if j%2==0 and i==0:
+                            stats.write_data(lst_writer, c, delimiter=',')
+                            stats.write_data(lst_writerb, b, delimiter=',')
 
                     label[i] = label_clip
                 label = torch.mean(label, 0, keepdim=True)

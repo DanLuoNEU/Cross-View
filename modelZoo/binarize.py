@@ -30,7 +30,7 @@ class Binarization(nn.Module):
     def load_weights_standalone(self):
 
         model_path = '/home/balaji/Documents/code/RSL/gumbel/models/exp10/148.pth'
-        state_dict = torch.load(model_path, map_location=torch.device(3))#
+        state_dict = torch.load(model_path, map_location=torch.device(1))#
         fc_weight = state_dict['gate_network.0.weight']
         fc_bias = state_dict['gate_network.0.bias']
         
@@ -56,7 +56,7 @@ class Binarization(nn.Module):
         """Gumbel gates, Eq (8)"""
 
         gate_inp = torch.transpose(gate_inp, 2, 1)  ## change from (1, 161, 50 ) to (1, 50, 161)  
-        #gate_inp = gate_inp/1000
+        
         gate_inp = torch.pow(gate_inp, 2)
         pi_log = self.gate_network(gate_inp)
         pi_log = torch.transpose(pi_log, 2, 1) ## change from (1, 50, 161) to (1, 161, 50)

@@ -22,6 +22,7 @@ import torch.nn as nn
 #         return grad_output, None
 
 class HardSoftmax(torch.autograd.Function):
+    
     @staticmethod
     def forward(ctx, input):
 
