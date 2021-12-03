@@ -16,3 +16,5 @@ matFile_new/
 plotDict/
 runs/
 vis/
+models/
+logs/

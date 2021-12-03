@@ -19,13 +19,17 @@ from lossFunction import binaryLoss
 
 gpu_id = 1
 num_workers = 4
-PRE = 0
+fistaLam = 0.3
+print('gpu_id: ',gpu_id)
+print('num_workers: ',num_workers)
+print('fistaLam: ',fistaLam)
 
+PRE = 0
 T = 36
 dataset = 'NUCLA'
 # dataset = 'NTU'
 Alpha = 0.1
-lam1 = 1
+lam1 = 2
 lam2 = 1
 N = 40*2
 Epoch = 150
@@ -35,22 +39,19 @@ clip = 'Multi'
 fusion = False
 # fusion = True
 
-modelRoot = './ModelFile/crossViewModel/'
+modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # modelPath = modelRoot + dataset + '/CS/2S_Multi_500_openpose_lam1051/'
 # modelPath = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
 # modelPath = modelRoot + dataset + '/2Stream/multiClip_lam1051_testV2_CV/'
 # modelPath = modelRoot + dataset + '/DYOnly_Multi_CV/'
-modelPath = modelRoot + dataset + '/newDYAN/CV_dynamicsStream_CLOnly/'
+modelPath = modelRoot + dataset + '/1111_1/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
 map_location = torch.device(gpu_id)
-stateDict = torch.load(os.path.join(modelPath, '100.pth'), map_location=map_location)['state_dict']
+stateDict = torch.load(os.path.join(modelPath, '40.pth'), map_location=map_location)['state_dict']
 # Drr = stateDict['dynamicsClassifier.sparsecoding.l1.rr']
 # Dtheta = stateDict['dynamicsClassifier.sparsecoding.l1.theta']
 
 Drr = stateDict['sparseCoding.rr']
 Dtheta = stateDict['sparseCoding.theta']
-
-
-
 
 if dataset == 'NUCLA':
     num_class = 10
@@ -86,7 +87,7 @@ elif dataset == 'NTU':
     testloader = DataLoader(testSet, batch_size=1, shuffle=True, num_workers=num_workers)
 
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True, gpu_id=gpu_id).cuda(gpu_id)
+net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True, gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
@@ -139,7 +140,7 @@ with torch.no_grad():
             input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
             # input_clip = input_clip[:, :, 1].unsqueeze(2)
             # inputImg_clip = inputImage[:,i, :, :, :]
-            label_clip, _, _ = net(input_clip, t) # DY+BI+CL
+            label_clip, _, _, _ = net(input_clip, t) # DY+BI+CL
             # label_clip, _ = net(input_clip, t) # DY+CL
             
             # if fusion:
@@ -164,5 +165,4 @@ with torch.no_grad():
     Acc = pred_cnt/count
 
 print('Acc:', Acc, 'total sample:', count, 'correct preds:', pred_cnt)
-
 print('done')

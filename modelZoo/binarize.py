@@ -58,6 +58,7 @@ class Binarization(nn.Module):
         gate_inp = torch.transpose(gate_inp, 2, 1)  ## change from (1, 161, 50 ) to (1, 50, 161)  
         
         gate_inp = torch.pow(gate_inp, 2)
+        gate_inp = torch.div(gate_inp, 0.1)
         pi_log = self.gate_network(gate_inp)
         pi_log = torch.transpose(pi_log, 2, 1) ## change from (1, 50, 161) to (1, 161, 50)
         return self.gs(pi_log, force_hard=True)

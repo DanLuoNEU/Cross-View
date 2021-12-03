@@ -179,8 +179,8 @@ class classificationHead(nn.Module):
             # self.FC = nn.Linear(128 * 17 *4, self.num_class)  # joing = 15, jhmdb
         else:
             # self.FC = nn.Linear(32 * 22 * 5, self.num_class) # joint=20, 3D
-            # self.FC = nn.Linear(128 * 22 * 5, self.num_class)
-            self.FC = nn.Linear(128 * 27 * 5, self.num_class)
+            self.FC = nn.Linear(128 * 22 * 5, self.num_class)
+            # self.FC = nn.Linear(128 * 27 * 5, self.num_class)
         for m in self.modules():
             # if m.__class__ == nn.Conv2d or m.__class__ == nn.Linear:
             #     init.xavier_normal(m.weight.data)
@@ -196,26 +196,29 @@ class classificationHead(nn.Module):
         # x = self.bn1(x)
         x = self.gn1(x)
         x = self.RL(x)
+        
 
         x = self.conv2(x)
         # x = self.bn2(x)
         x = self.gn2(x)
         x = self.RL(x)
+        
 
         x = self.conv3(x)
         # x = self.bn3(x)
         x = self.gn3(x)
         x = self.RL(x)
+        
 
         x = self.conv4(x)
         # x = self.bn4(x)
         x = self.gn4(x)
         x = self.RL(x)
+        
 
-        # print('binary classifier fc size:', x.shape)
         x = x.view(x.size(0), -1)
         # x = self.FC(x)
-
+        
         label = self.FC(x)
         return label
 
@@ -310,6 +313,7 @@ class Fullclassification(nn.Module):
         # print('binarycode shape:', binaryCode.shape)
         temp = binaryCode.reshape(binaryCode.shape[0], self.Npole, int(x.shape[-1]/self.dim), self.dim)
         label = self.Classifier(temp)
+        
         Reconstruction = torch.matmul(Dict, temp1)
 
         return label, binaryCode, Reconstruction, sparseCode

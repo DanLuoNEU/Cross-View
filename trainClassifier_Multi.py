@@ -21,12 +21,13 @@ import stats
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
-
+fistaLam = 0.3
 gpu_id = 1
 num_workers = 4
 PRE = 0
 print('gpu_id: ',gpu_id)
 print('num_workers: ',num_workers)
+print('fistaLam: ',fistaLam)
 T = 36
 print('T: ',T)
 dataset = 'NUCLA'
@@ -38,7 +39,9 @@ lam2 = 1 # for MSE
 
 N = 40*2
 Epoch = 100
-dataType = '2D'
+dataType = '3D'
+dim = 3
+
 # clip = 'Single'
 clip = 'Multi'
 fusion = False
@@ -52,7 +55,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1109/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/1201/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)
@@ -127,8 +130,8 @@ elif dataset == 'NTU':
 # net = classificationHead(num_class=10, Npole=(N+1)).cuda(gpu_id)
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True,
-                         gpu_id=gpu_id, fistaLam=0.1).cuda(gpu_id)
+net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=dim, dataType=dataType, Inference=True,
+                         gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
@@ -219,11 +222,11 @@ for epoch in range(0, Epoch+1):
             label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
             label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
 
-            if i%5==0 and clip==0:
-                stats.write_data(lst_writer1, c1, delimiter=',')
-                stats.write_data(lst_writer2, c2, delimiter=',')
-                stats.write_data(lst_writerb1, b1, delimiter=',')
-                stats.write_data(lst_writerb2, b2, delimiter=',')
+            # if i%20==0 and clip==0:
+            #     stats.write_data(lst_writer1, c1, delimiter=',')
+            #     stats.write_data(lst_writer2, c2, delimiter=',')
+            #     stats.write_data(lst_writerb1, b1, delimiter=',')
+            #     stats.write_data(lst_writerb2, b2, delimiter=',')
 
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
@@ -294,6 +297,7 @@ for epoch in range(0, Epoch+1):
         loss = loss1 + loss2
         loss.backward()
         # pdb.set_trace()
+        # print('bin fc wt grad, ', net.BinaryCoding.gate_network[0].weight.grad)
         # print('rr.grad:', net.sparseCoding.rr.grad, 'theta.grad:', net.sparseCoding.theta.grad)
         # print('cls.grad:', net.Classifier.FC.weight.grad)
         optimizer.step()
@@ -348,9 +352,9 @@ for epoch in range(0, Epoch+1):
                         # label_clip,_ = net(input_clip, t) #DY
                         label_clip, b, out_clip, c = net(input_clip, t) # DY+BI
 
-                        if j%2==0 and i==0:
-                            stats.write_data(lst_writer, c, delimiter=',')
-                            stats.write_data(lst_writerb, b, delimiter=',')
+                        # if j%10==0 and i==0:
+                        #     stats.write_data(lst_writer, c, delimiter=',')
+                        #     stats.write_data(lst_writerb, b, delimiter=',')
 
                     label[i] = label_clip
                 label = torch.mean(label, 0, keepdim=True)

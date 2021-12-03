@@ -48,7 +48,21 @@ import torch
 import torch.nn as nn
 import pdb
 
+# class HardSoftmax(torch.autograd.Function):
+#     @staticmethod
+#     def forward(ctx, input):
+#         y_hard = input.clone()
+#         y_hard = y_hard.zero_()
+#         y_hard[input > 0.6] = 1
+
+#         return y_hard
+
+#     @staticmethod
+#     def backward(ctx, grad_output):
+#         return grad_output, None
+
 class HardSoftmax(torch.autograd.Function):
+    
     @staticmethod
     def forward(ctx, input):
         y_hard = input.clone()
@@ -61,8 +75,6 @@ class HardSoftmax(torch.autograd.Function):
         else:
             y_hard[input > a] = 1
             y_hard[input <= b] = 1
-
-        # y_hard[input > 0.6] =1
 
         return y_hard
 

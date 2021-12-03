@@ -81,7 +81,8 @@ class NUCLA_viewProjection(tudata.Dataset):
         if self.dataType == '2D':
             self.root_skeleton = '/data/Dan/N-UCLA_MA_3D/openpose_est'
         else:
-            self.root_skeleton = '/data/Dan/N-UCLA_MA_3D/skeletons_3d'
+            #self.root_skeleton = '/data/Dan/N-UCLA_MA_3D/skeletons_3d'
+            self.root_skeleton = '/home/balaji/Documents/code/RSL/preprocess_skeleton/preprocess_skeletons_3d'
 
         # self.root_list = root_list
         self.view = []
@@ -147,13 +148,12 @@ class NUCLA_viewProjection(tudata.Dataset):
             self.y_std_skeleton = np.expand_dims(np.std(allSkeleton, axis=0)[:, 1], 0)
             self.z_std_skeleton = np.expand_dims(np.std(allSkeleton, axis=0)[:, 2], 0)
 
-
         self.samples_list = []
         for item in self.targest_list:
             if item in self.project_list:
                 self.samples_list.append(item)
 
-        self.samples_list = self.samples_list[:100]
+        #self.samples_list = self.samples_list[:50]
 
         'if use view 3'
 
@@ -172,8 +172,8 @@ class NUCLA_viewProjection(tudata.Dataset):
                 if subject != 's05':
                     temp.append(item)
 
-            # self.samples_list = temp
-            self.samples_list = random.sample(temp, 50)
+            self.samples_list = temp
+            # self.samples_list = random.sample(temp, 100)
             # self.samples_list = temp[0:100]
 
 
@@ -235,9 +235,18 @@ class NUCLA_viewProjection(tudata.Dataset):
             Y = skeleton[:, :, 1]
             Z = skeleton[:, :, 2]
 
-            normX = (X - self.x_mean_skeleton) / self.x_std_skeleton
-            normY = (Y - self.y_mean_skeleton) / self.y_std_skeleton
-            normZ = (Z - self.z_mean_skeleton) / self.z_std_skeleton
+            a = X - self.x_mean_skeleton
+            b = self.x_std_skeleton
+            normX = np.divide(a, b, out=np.zeros_like(a), where=b!=0)
+
+            a = Y - self.y_mean_skeleton
+            b = self.y_std_skeleton
+            normY = np.divide(a, b, out=np.zeros_like(a), where=b!=0)
+
+            a = Z - self.z_mean_skeleton
+            b = self.z_std_skeleton
+            normZ = np.divide(a, b, out=np.zeros_like(a), where=b!=0)
+
             normSkeleton = np.concatenate((np.expand_dims(normX, 2), np.expand_dims(normY, 2),np.expand_dims(normZ, 2)),2).astype(float)
 
             # normSkeleton = skeleton
@@ -617,8 +626,8 @@ class NUCLA_viewProjection(tudata.Dataset):
 
                 allSkeletons = np.concatenate((allSkeletons), 0)
                 allImageSequence = np.zeros((self.clips, L, 3, 224, 224))
-                allHeatMaps = []
-
+                
+            allHeatMaps = []
 
         return allSkeletons, allImageSequence, allHeatMaps
 
@@ -739,7 +748,7 @@ if __name__ == "__main__":
     # root_skeleton = '/data/Dan/N-UCLA_MA_3D/openpose_est'
     # root_skeleton = '/data/Dan/N-UCLA_MA_3D/skeletons_3d'
     root_list = f"/data/Dan/N-UCLA_MA_3D/lists"
-    DS = NUCLA_viewProjection(root_list=root_list, dataType='2D', clip='Multi', phase='train', cam='1,2', T=36, target_view='view_2',
+    DS = NUCLA_viewProjection(root_list=root_list, dataType='3D', clip='Multi', phase='train', cam='1,2', T=36, target_view='view_2',
                               project_view='view_1', test_view='view_3')
 
     dataloader = tudata.DataLoader(DS, batch_size=1, shuffle=False,
