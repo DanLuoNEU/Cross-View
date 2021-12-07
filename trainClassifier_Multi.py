@@ -130,13 +130,8 @@ elif dataset == 'NTU':
 # net = classificationHead(num_class=10, Npole=(N+1)).cuda(gpu_id)
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-<<<<<<< HEAD
 net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=dim, dataType=dataType, Inference=True,
-                         gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
-=======
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True,
                          gpu_id=gpu_id, fistaLam=0.5).cuda(gpu_id)
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
@@ -249,20 +244,13 @@ for epoch in range(0, Epoch+1):
 
             # clipBI1[clip] = torch.sum(b1)/((2*N+1)*50)
             # clipBI1[clip] = binaryLoss(b1, gpu_id)
-<<<<<<< HEAD
-=======
             # clipBI1[clip] = torch.norm(b1)
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
             clipBI1[clip] = L1loss(b1, bi_gt1)
             clipMSE1[clip] = mseLoss(outClip_v1, v1_clip)
 
             # clipBI2[clip] = binaryLoss(b2, gpu_id)
             # clipBI2[clip] = torch.sum(b2)/((2*N+1)*50)
             # clipBI1[clip] = torch.norm(b2)
-<<<<<<< HEAD
-
-=======
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
             clipBI2[clip] = L1loss(b2, bi_gt2)
             clipMSE2[clip] = mseLoss(outClip_v2, v2_clip)
 
