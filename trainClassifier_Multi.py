@@ -21,7 +21,7 @@ import stats
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
-fistaLam = 0.3
+fistaLam = 0.1
 gpu_id = 1
 num_workers = 4
 PRE = 0
@@ -55,7 +55,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1201/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/1207/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)
@@ -131,7 +131,7 @@ elif dataset == 'NTU':
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
 net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=dim, dataType=dataType, Inference=True,
-                         gpu_id=gpu_id, fistaLam=0.5).cuda(gpu_id)
+                         gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
 # kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 # net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
 #                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)

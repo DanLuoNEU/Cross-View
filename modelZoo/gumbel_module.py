@@ -75,13 +75,6 @@ class HardSoftmax(torch.autograd.Function):
         else:
             y_hard[input > a] = 1
             y_hard[input <= b] = 1
-<<<<<<< HEAD
-=======
-
-        # y_hard[input >= 0.6] = 1
-        # y_hard[input <= 0.4] = 1
-        # y_hard[input>=0.5] =1
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
 
         return y_hard
 
@@ -143,7 +136,6 @@ if __name__ == '__main__':
     gumbelSigmoid = GumbelSigmoid()
 
     # logits = torch.randn(1, 161)
-<<<<<<< HEAD
     #logits = torch.tensor([0.001, -0.001, 0.12, 0.04, 0.0001])
     logits = torch.tensor([0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00,
         0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00, 0.0000e+00,
@@ -174,9 +166,4 @@ if __name__ == '__main__':
         1.9435e-01, 2.3863e-01, 3.4643e-01, 4.3830e-01, 8.1063e-01])
     out = gumbelSigmoid(logits, force_hard=True, temperature=0.1, inference=True)
     print('min max ',torch.min(out),  torch.max(out))
-=======
-    logits = torch.tensor([0.001, -0.001, 0.12, 0.04, 0.0001])
-    out = gumbelSigmoid(logits, force_hard=True, temperature=0.01, inference=True)
-
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
     print('check')

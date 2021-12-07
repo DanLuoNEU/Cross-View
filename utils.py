@@ -82,7 +82,7 @@ def gridRing(N):
     rmax = (1 + epsilon_high)
 
     thetaMin = 0.001
-    thetaMax = np.pi / 2 - 0.001
+    thetaMax = np.pi - 0.001
     delta = 0.001
     # Npole = int(N / 4)
     Npole = int(N/2)

@@ -286,32 +286,13 @@ class Fullclassification(nn.Module):
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
         self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=fistaLam, gpu_id=self.gpu_id)
-<<<<<<< HEAD
-
-    def get_sparse_stats(self, sparse_tensor, idx):
         
-        sparse = sparse_tensor.clone()
-        sparse = torch.abs(sparse)        
-        print('sparse min', torch.min(sparse[0,:,idx]), flush=True)
-        print('sparse max', torch.max(sparse[0,:,idx]), flush=True)
-        print('sparse sort 1 sample', torch.sort(sparse[0,:,idx])[0], flush=True)
-
-=======
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
         sparseCode, Dict = self.sparseCoding(x, T)
 
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
         # binaryCode = self.BinaryCoding(inp)
-<<<<<<< HEAD
-=======
-
-        sparseCode = sparseCode.detach()
-        binaryCode = self.BinaryCoding(sparseCode*2, force_hard=True, temperature=0.1, inference=self.Inference)
-        
-        temp1 = sparseCode * binaryCode
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
 
         # sparseCode = sparseCode**2
         # pdb.set_trace()

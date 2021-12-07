@@ -183,16 +183,11 @@ def fista_reweighted(D, Y, lambd, w, maxIter,gpu_id):
     # eig, v = torch.linalg.eig(DtD)
     # L = torch.max(eig)
     # L = torch.norm(DtD, 2)
-<<<<<<< HEAD
     # L = torch.linalg.matrix_norm(DtD, 2)
     eigs = torch.abs(torch.linalg.eigvals(DtD.cpu()))
     L = torch.max(eigs)
     # print('max eigen:', L, 'min eigen:', torch.min(eigs), 'max D:', torch.max(D))
     # pdb.set_trace()
-=======
-    eigs = torch.abs(torch.linalg.eigvals(DtD.cpu()))
-    L = torch.max(eigs)
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
     Linv = 1/L
     # print(w)
     # pdb.set_trace()
@@ -266,7 +261,6 @@ class DyanEncoder(nn.Module):
         w_init = torch.ones(1, dic.shape[1], x.shape[2]).cuda(self.gpu_id)
         while i < 2:
             temp = fista_reweighted(dic, x, self.lam, w_init, 100, self.gpu_id)
-<<<<<<< HEAD
             'for vector:'
             w = 1 / (torch.abs(temp) + 1e-2)
             w_init = (w/torch.norm(w)) * dic.shape[1]
@@ -277,11 +271,6 @@ class DyanEncoder(nn.Module):
             # pdb.set_trace()
 
 
-=======
-            w = 1 / (torch.abs(temp) + 1e-2)
-            # w_init = w/torch.norm(w)
-            w_init = (w/torch.norm(w)) * dic.shape[1]
->>>>>>> 8ebc682a46224f82223e3366f676a875ebb7a63b
             final = temp
             del temp
             i += 1
