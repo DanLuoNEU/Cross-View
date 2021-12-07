@@ -85,7 +85,7 @@ def gridRing(N):
     thetaMax = np.pi - 0.001
     delta = 0.001
     # Npole = int(N / 4)
-    Npole = int(N/2)
+    Npole = int(N)
     Pool = generateGridPoles(delta, rmin, rmax, thetaMin, thetaMax)
     M = len(Pool)
 
