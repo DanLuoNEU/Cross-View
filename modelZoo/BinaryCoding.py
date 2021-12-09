@@ -282,6 +282,7 @@ class Fullclassification(nn.Module):
         self.fistaLam = fistaLam
         # self.BinaryCoding = binaryCoding(num_binary=self.num_binary)
         #self.BinaryCoding = GumbelSigmoid()
+        print('self.Npole: ',self.Npole)
         self.BinaryCoding = Binarization(self.Npole)
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)

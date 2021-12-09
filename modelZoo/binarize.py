@@ -29,7 +29,7 @@ class Binarization(nn.Module):
 
     def load_weights_standalone(self):
 
-        model_path = '/home/balaji/Documents/code/RSL/gumbel/models/exp10/148.pth'
+        model_path = '/home/balaji/Documents/code/RSL/binarization/models/exp13/106.pth'
         state_dict = torch.load(model_path, map_location=torch.device(1))#
         fc_weight = state_dict['gate_network.0.weight']
         fc_bias = state_dict['gate_network.0.bias']

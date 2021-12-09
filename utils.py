@@ -86,6 +86,8 @@ def gridRing(N):
     delta = 0.001
     # Npole = int(N / 4)
     Npole = int(N/2)
+    print('Npole: ', Npole)
+
     Pool = generateGridPoles(delta, rmin, rmax, thetaMin, thetaMax)
     M = len(Pool)
 
