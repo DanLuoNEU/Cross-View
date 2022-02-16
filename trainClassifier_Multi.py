@@ -39,8 +39,8 @@ lam2 = 1 # for MSE
 
 N = 80*2
 Epoch = 100
-dataType = '3D'
-dim = 3
+dataType = '2D'
+dim = 2
 
 # clip = 'Single'
 clip = 'Multi'
@@ -55,7 +55,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1209/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/0216/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)
@@ -130,11 +130,11 @@ elif dataset == 'NTU':
 # net = classificationHead(num_class=10, Npole=(N+1)).cuda(gpu_id)
 # net = classificationWBinarization(num_class=10, Npole=(2*N+1), num_binary=(N+1)).cuda(gpu_id)
 # net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=dim, dataType=dataType, Inference=True,
-                         gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
-# kinetics_pretrain = './pretrained/i3d_kinetics.pth'
-# net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
-#                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
+# net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=dim, dataType=dataType, Inference=True,
+#                          gpu_id=gpu_id, fistaLam=fistaLam).cuda(gpu_id)
+kinetics_pretrain = './pretrained/i3d_kinetics.pth'
+net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(2*N+1), Drr=Drr, Dtheta=Dtheta,
+                                  dim=dim, gpu_id=gpu_id, fistaLam=fistaLam, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
 
 # net = RGBAction(num_class=num_class, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
 
@@ -146,11 +146,11 @@ net.train()
 # optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, weight_decay=0.001, momentum=0.9)
 
 
-# optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.dynamicsClassifier.parameters()), 'lr':1e-3},
-# {'params':filter(lambda x: x.requires_grad, net.RGBClassifier.parameters()), 'lr':1e-4}], weight_decay=0.001, momentum=0.9)
+optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.dynamicsClassifier.parameters()), 'lr':1e-3},
+{'params':filter(lambda x: x.requires_grad, net.RGBClassifier.parameters()), 'lr':1e-4}], weight_decay=0.001, momentum=0.9)
 
-optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.sparseCoding.parameters()), 'lr':1e-6},
-                             {'params':filter(lambda x: x.requires_grad, net.Classifier.parameters()), 'lr':1e-3}], weight_decay=0.001, momentum=0.9)
+# optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.sparseCoding.parameters()), 'lr':1e-6},
+#                              {'params':filter(lambda x: x.requires_grad, net.Classifier.parameters()), 'lr':1e-3}], weight_decay=0.001, momentum=0.9)
 
 
 scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50, 70], gamma=0.1)
@@ -211,22 +211,16 @@ for epoch in range(0, Epoch+1):
 
             'two stream model'
 
-            # img1_clip = input_v1_img[:,clip,:,:,:]
-            # img2_clip = input_v2_img[:,clip,:,:,:]
-            # label_clip1, b1, outClip_v1 = net(v1_clip, img1_clip, t1, fusion)
-            # label_clip2, b2, outClip_v2 = net(v2_clip, img2_clip, t2, fusion)
+            img1_clip = input_v1_img[:,clip,:,:,:]
+            img2_clip = input_v2_img[:,clip,:,:,:]
+            label_clip1, b1, outClip_v1 = net(v1_clip, img1_clip, t1, fusion)
+            label_clip2, b2, outClip_v2 = net(v2_clip, img2_clip, t2, fusion)
             # label_clip1 = net(img1_clip)
             # label_clip2 = net(img2_clip)
 
             'Full Model'
-            label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
-            label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
-
-            # if i%20==0 and clip==0:
-            #     stats.write_data(lst_writer1, c1, delimiter=',')
-            #     stats.write_data(lst_writer2, c2, delimiter=',')
-            #     stats.write_data(lst_writerb1, b1, delimiter=',')
-            #     stats.write_data(lst_writerb2, b2, delimiter=',')
+            # label_clip1, b1, outClip_v1, c1 = net(v1_clip, t1)
+            # label_clip2, b2, outClip_v2, c2 = net(v2_clip, t2)
 
             bi_gt1 = torch.zeros_like(b1).cuda(gpu_id)
             bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)

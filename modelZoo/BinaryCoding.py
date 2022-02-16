@@ -312,7 +312,7 @@ class Fullclassification(nn.Module):
         return label, binaryCode, Reconstruction, sparseCode
 
 class twoStreamClassification(nn.Module):
-    def __init__(self, num_class, Npole, num_binary, Drr, Dtheta, dim, gpu_id, dataType, kinetics_pretrain):
+    def __init__(self, num_class, Npole, num_binary, Drr, Dtheta, dim, gpu_id, fistaLam, dataType, kinetics_pretrain):
         super(twoStreamClassification, self).__init__()
         self.num_class = num_class
         self.Npole = Npole
@@ -323,15 +323,16 @@ class twoStreamClassification(nn.Module):
         self.gpu_id = gpu_id
         self.dataType = dataType
         self.dim = dim
+        self.fistaLam = fistaLam
         self.kinetics_pretrain = kinetics_pretrain
 
         self.dynamicsClassifier = Fullclassification(self.num_class, self.Npole, self.num_binary,
-                                                          self.Drr, self.Dtheta, self.dim, self.dataType, self.gpu_id)
+                                                          self.Drr, self.Dtheta, self.dim, self.dataType, True, self.gpu_id, self.fistaLam)
         self.RGBClassifier = RGBAction(self.num_class, self.kinetics_pretrain)
 
     def forward(self,skeleton, image, T, fusion):
         # stream = 'fusion'
-        label1, binaryCode, Reconstruction = self.dynamicsClassifier(skeleton, T)
+        label1, binaryCode, Reconstruction, sparseCode = self.dynamicsClassifier(skeleton, T)
         label2 = self.RGBClassifier(image)
 
         if fusion:
