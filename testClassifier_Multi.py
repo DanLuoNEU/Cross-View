@@ -19,7 +19,7 @@ from lossFunction import binaryLoss
 
 gpu_id = 1
 num_workers = 4
-fistaLam = 0.3
+fistaLam = 0.1
 print('gpu_id: ',gpu_id)
 print('num_workers: ',num_workers)
 print('fistaLam: ',fistaLam)
@@ -31,7 +31,7 @@ dataset = 'NUCLA'
 Alpha = 0.1
 lam1 = 2
 lam2 = 1
-N = 40*2
+N = 80*2
 Epoch = 150
 dataType = '2D'
 # clip = 'Single'
@@ -44,9 +44,9 @@ modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # modelPath = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
 # modelPath = modelRoot + dataset + '/2Stream/multiClip_lam1051_testV2_CV/'
 # modelPath = modelRoot + dataset + '/DYOnly_Multi_CV/'
-modelPath = modelRoot + dataset + '/1111_1/CV_dynamicsStream_fista05_reWeighted_sqrC_T72/'
+modelPath = modelRoot + dataset + '/0216D/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
 map_location = torch.device(gpu_id)
-stateDict = torch.load(os.path.join(modelPath, '40.pth'), map_location=map_location)['state_dict']
+stateDict = torch.load(os.path.join(modelPath, '0.pth'), map_location=map_location)['state_dict']
 # Drr = stateDict['dynamicsClassifier.sparsecoding.l1.rr']
 # Dtheta = stateDict['dynamicsClassifier.sparsecoding.l1.theta']
 
@@ -116,6 +116,7 @@ with torch.no_grad():
         # inputImage = sample['input_image'].unsqueeze(0).float().cuda(gpu_id)
 
         t = inputSkeleton.shape[2]
+        print('sample ', sample.keys())
         y = sample['action'].data.item()
         label = torch.zeros(inputSkeleton.shape[1], num_class)
         """""
@@ -152,6 +153,8 @@ with torch.no_grad():
             #     # label_clip = net(inputImg_clip)
 
             label[i] = label_clip
+            print('input_clip: ', input_clip.shape)
+            
         label = torch.mean(label, 0, keepdim=True)
 
         pred = torch.argmax(label).data.item()
