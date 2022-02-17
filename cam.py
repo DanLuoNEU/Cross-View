@@ -96,18 +96,34 @@ net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr
 net.load_state_dict(stateDict)
 net.eval()
 
+# from torchsummary import summary
+# summary(net)
+print('net: ',net)
 
 count = 0
 pred_cnt = 0
 Acc = []
 classLabel = [[] for i in range(0, num_class)]
 classGT = [[] for i in range(0, num_class)]
+
+def read_images(input_img_batch):
+
+    input_img_batch = np.transpose(input_img_batch, (1, 3, 4, 2, 0)).squeeze(axis=-1)
+    num_images = input_img_batch.shape[-1]
+
+    for num_image in range(num_images):
+        img = input_img_batch[num_image].cpu().detach().numpy()
+        cv2.imshow('image ', img)
+        cv2.waitKey(-1)
+
 with torch.no_grad():
 
     for s, sample in enumerate(testloader):
         # input = sample['test_view_multiClips'].float().cuda(gpu_id)
         'Multi'
         inputSkeleton = sample['input_skeleton'].float().cuda(gpu_id)
+        input_images = sample['input_image']
+
         # inputSkeleton = sample['project_skeleton'].float().cuda(gpu_id)
         # inputImage = sample['input_image'].float().cuda(gpu_id)
 
@@ -152,6 +168,9 @@ with torch.no_grad():
             #     # label_clip = net(inputImg_clip)
 
             label[i] = label_clip
+            input_img_batch = input_images[:, i, :, :, :]
+            read_images(input_img_batch)
+
         label = torch.mean(label, 0, keepdim=True)
 
         pred = torch.argmax(label).data.item()

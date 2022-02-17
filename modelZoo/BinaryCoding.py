@@ -382,8 +382,6 @@ if __name__ == '__main__':
     label, _, _ = net(x, xImg, T)
 
 
-
-
     print('check')
 
 
