@@ -6,6 +6,7 @@ import torch.nn.init as init
 import torchvision
 
 from modelZoo.i3dpt import I3D, I3D_head
+#from i3dpt import I3D, I3D_head
 
 
 class BaseNet(nn.Module):
@@ -152,6 +153,7 @@ class RGBAction(nn.Module):
         self.layer1 = nn.Conv3d(1024, self.fc_dim,
                                     kernel_size=1, stride=1, bias=True)
 
+        
         self.global_cls = nn.Conv3d(
                 self.fc_dim * self.pool_size**2,
                 self.num_class,
@@ -168,17 +170,22 @@ class RGBAction(nn.Module):
         N, T, _,_,_ = STfeature.size()
 
         STconvFeat = self.i3d_conv(STfeature.permute(0, 2, 1, 3, 4))
+        print('STconvFeat shape 0: ', STconvFeat.shape)
         STconvFeat = self.layer1(STconvFeat)
+        print('STconvFeat shape 1: ', STconvFeat.shape)
         STconvFeat_flat = STconvFeat.permute(0, 2, 1, 3, 4).contiguous().view(N, T, -1, 1, 1)
         STconvFeat_flat = STconvFeat_flat.permute(0, 2, 1, 3, 4).contiguous()
 
-
+        print('STconvFeat_flat shape 0: ', STconvFeat_flat.shape)
         STconvFeat_flat = self.dropout(STconvFeat_flat)
+        print('STconvFeat_flat shape 1: ', STconvFeat_flat.shape)
 
         global_class = self.global_cls(STconvFeat_flat)
+        print('global_class shape 0: ', global_class.shape)
         global_class = global_class.squeeze(3)
         global_class = global_class.squeeze(3)
         global_class = global_class.mean(2)
+        print('global_class shape 1: ', global_class.shape)
 
         return global_class
 
@@ -187,8 +194,8 @@ class RGBAction(nn.Module):
 if __name__ == '__main__':
     gpu_id = 1
     kinetics_pretrain = '../pretrained/i3d_kinetics.pth'
-    net = RGBAction(num_class=12, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
-    inputImage = torch.randn(1, 40, 3, 224, 224).cuda(gpu_id)
+    net = RGBAction(num_class=10, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
+    inputImage = torch.randn(1, 21, 3, 224, 224).cuda(gpu_id)
     # inputData = torch.randn(1, 40, 512, 7, 7).cuda(gpu_id)
     # inputheatData = torch.randn(1, 40, 64, 64).cuda(gpu_id)
 
