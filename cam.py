@@ -80,24 +80,14 @@ net = twoStreamClassification(num_class=num_class, Npole=(2*N+1), num_binary=(2*
 net.load_state_dict(stateDict)
 net.eval()
 
+print('net ', net)
+
 # hook the feature extractor
 features_blobs = []
 def hook_feature(module, input, output):
     features_blobs.append(output.data.cpu().numpy())
 
 net.RGBClassifier.layer1.register_forward_hook(hook_feature)
-
-# get the softmax weight
-params = list(net.parameters())
-
-for name, param in net.named_parameters():
-    print(name, param.data.cpu().detach().numpy().shape)
-
-for i in range(len(params)):
-    print('param ' + str(i), params[i].data.cpu().detach().numpy().shape)
-    
-weight_softmax = np.squeeze(params[-4].data.cpu().detach().numpy())
-print('weight_softmax shape: ', weight_softmax.shape)
 
 count = 0
 pred_cnt = 0
@@ -139,6 +129,10 @@ def display_images(input_img_batch):
     result = heatmap * 0.3 + img * 0.5
     cv2.imshow('result ', result)
     cv2.waitKey(-1)
+
+Criterion = torch.nn.CrossEntropyLoss()
+mseLoss = torch.nn.MSELoss()
+L1loss = torch.nn.L1Loss()
 
 with torch.no_grad():
 
