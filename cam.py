@@ -169,8 +169,10 @@ with torch.no_grad():
                 label_clip, b, outClip_v = net(input_clip, inputImg_clip, t, fusion)
         
             label[i] = label_clip
-            clipMSE1[clip] = mseLoss(outClip_v1, v1_clip)
-            clipBI1[clip] = L1loss(b1, bi_gt1)
+            clipMSE[clip] = mseLoss(outClip_v, input_clip)
+
+            bi_gt = torch.zeros_like(b).cuda(gpu_id)
+            clipBI[clip] = L1loss(b, bi_gt)
 
             print('label_clip: ', label_clip)
             input_img_batch = input_images[:, 0, :, :, :]

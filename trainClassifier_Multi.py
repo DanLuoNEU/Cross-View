@@ -186,7 +186,6 @@ for epoch in range(0, Epoch+1):
         # input_v1 = sample['target_velocity'].float().cuda(gpu_id)
         # input_v2 = sample['project_velocity'].float().cuda(gpu_id)
 
-
         y = sample['action'].cuda(gpu_id)
         t1 = input_v1.shape[2]
         t2 = input_v2.shape[2]

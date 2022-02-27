@@ -21,8 +21,8 @@ class BaseNet(nn.Module):
         self.base_name = base_name
         # self.kinetics_pretrain = cfg.kinetics_pretrain
         self.kinetics_pretrain = kinetics_pretrain
-        self.freeze_stats = True
-        self.freeze_affine = True
+        self.freeze_stats = False
+        self.freeze_affine = False
         self.fp16 = False
         self.data_type = data_type
 
@@ -134,8 +134,8 @@ class RGBAction(nn.Module):
         self.num_class = num_class
         self.base_net = 'i3d'
         self.data_type = 'rgb'
-        self.freeze_stats = True
-        self.freeze_affine = True
+        self.freeze_stats = False
+        self.freeze_affine = False
         self.fc_dim = 256
         self.dropout_prob = 0.3
         self.pool_size = 14
@@ -144,8 +144,9 @@ class RGBAction(nn.Module):
 
         self.featureExtractor = BaseNet(self.base_net, self.data_type, self.kinetics_pretrain)
         self.i3d_conv = build_conv(self.base_net, self.kinetics_pretrain, 'global', self.freeze_affine)
+        
         for param in self.featureExtractor.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
 
         # for param in self.i3d_conv.parameters():
         #     param.requires_grad = False
@@ -162,30 +163,40 @@ class RGBAction(nn.Module):
         self.dropout = nn.Dropout(self.dropout_prob)
 
 
+    def activations_hook(self, grad):
+        print('self.grad: ', grad)
+        self.gradients = grad
+    
+    def get_activations_gradient(self):
+        return self.gradients
+
     def forward(self, x):
         'global_feat: 1xTx512x7x7'
-
+        
+        print('requires_grad: ', x.requires_grad)
         STfeature = self.featureExtractor(x)
+        
+        h = STfeature.register_hook(self.activations_hook)
 
         N, T, _,_,_ = STfeature.size()
-
         STconvFeat = self.i3d_conv(STfeature.permute(0, 2, 1, 3, 4))
         print('STconvFeat shape 0: ', STconvFeat.shape)
         STconvFeat = self.layer1(STconvFeat)
         print('STconvFeat shape 1: ', STconvFeat.shape)
+        
         STconvFeat_flat = STconvFeat.permute(0, 2, 1, 3, 4).contiguous().view(N, T, -1, 1, 1)
         STconvFeat_flat = STconvFeat_flat.permute(0, 2, 1, 3, 4).contiguous()
 
-        print('STconvFeat_flat shape 0: ', STconvFeat_flat.shape)
+        #print('STconvFeat_flat shape 0: ', STconvFeat_flat.shape)
         STconvFeat_flat = self.dropout(STconvFeat_flat)
-        print('STconvFeat_flat shape 1: ', STconvFeat_flat.shape)
+        #print('STconvFeat_flat shape 1: ', STconvFeat_flat.shape)
 
         global_class = self.global_cls(STconvFeat_flat)
-        print('global_class shape 0: ', global_class.shape)
+        #print('global_class shape 0: ', global_class.shape)
         global_class = global_class.squeeze(3)
         global_class = global_class.squeeze(3)
         global_class = global_class.mean(2)
-        print('global_class shape 1: ', global_class.shape)
+        #print('global_class shape 1: ', global_class.shape)
 
         return global_class
 
