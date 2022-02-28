@@ -61,7 +61,6 @@ print('out shape: ', out.shape)
 
 acts = acts.detach().cpu()
 print('acts shape: ', acts.shape)
-exit()
 
 loss = nn.CrossEntropyLoss()(out,torch.from_numpy(np.array([600])).to('cuda:0'))
 loss.backward()

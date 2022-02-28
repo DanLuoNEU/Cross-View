@@ -22,7 +22,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 fistaLam = 0.1
-gpu_id = 0
+gpu_id = 1
 num_workers = 8
 PRE = 0
 print('gpu_id: ',gpu_id)
@@ -55,7 +55,7 @@ Dtheta = torch.from_numpy(Dtheta).float()
 modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/0216/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
+saveModel = modelRoot + dataset + '/0228/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
 fig_save_path = os.path.join(saveModel, 'plots')
 if not os.path.exists(fig_save_path):
     os.makedirs(fig_save_path)

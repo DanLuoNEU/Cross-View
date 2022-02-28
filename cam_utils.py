@@ -89,6 +89,7 @@ def load_net(num_class, stateDict):
                                     dim=2, gpu_id=gpu_id, dataType=dataType, fistaLam=fistaLam,  kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
 
     net.load_state_dict(stateDict)
+    net.eval()
 
     return net
 
@@ -101,28 +102,21 @@ class GradCamModel(nn.Module):
         self.selected_out = None
         
         stateDict = load_model()
-        self.net = load_net(num_class, stateDict).RGBClassifier
-
-        #self.layerhook.append(self.net.RGBClassifier.layer1.register_forward_hook(self.forward_hook()))
+        self.net = load_net(num_class, stateDict)
 
         for name, param in self.net.named_parameters():
             param.requires_grad = True
             #print(name, param.data.shape)
 
-        self.net.train()
-        #self.net.eval()
+        self.layerhook.append(self.net.RGBClassifier.layer1.register_forward_hook(self.forward_hook()))
 
-        #self.layerhook.append(self.net.layer1.register_forward_hook(self.forward_hook()))
-
-        # for p in self.net.parameters():
-        #     p.requires_grad = True
         
     def activations_hook(self,grad):
         self.gradients = grad
 
     def get_act_grads(self):
         
-        return self.net.get_activations_gradient()
+        return self.gradients
 
     def forward_hook(self):
 
@@ -132,13 +126,9 @@ class GradCamModel(nn.Module):
             
         return hook
 
-    # def forward(self, input_clip, inputImg_clip, t, fusion=False):
-    #     label_clip, b, outClip_v = self.net(input_clip, inputImg_clip, t, fusion)
-    #     return label_clip, b, outClip_v, self.selected_out
-
-    def forward(self, image):
-        label_clip = self.net(image)
-        return label_clip, self.selected_out
+    def forward(self, input_clip, inputImg_clip, t, fusion=False):
+        label_clip, b, outClip_v = self.net(input_clip, inputImg_clip, t, fusion)
+        return label_clip, b, outClip_v, self.selected_out
 
 if __name__ == '__main__':
     
