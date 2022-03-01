@@ -5,6 +5,7 @@ import matplotlib as mpl
 import numpy as np
 from skimage.io import imread
 from skimage.transform import resize
+import cv2
 
 Alpha = 0.1
 lam1 = 2
@@ -17,18 +18,46 @@ Criterion = torch.nn.CrossEntropyLoss()
 mseLoss = torch.nn.MSELoss()
 L1loss = torch.nn.L1Loss()
 
-def vis_img(img, heatmap):
+def stack_img(img):
 
-    heatmap_max = heatmap.max(axis = 0)[0]
-    heatmap /= heatmap_max
-    heatmap = resize(heatmap,(224,224),preserve_range=True)
+    imgs = np.zeros((img.shape[0], img.shape[1], 3)).astype('float')
+    imgs[:, :, 0] = img
+    imgs[:, :, 1] = img
+    imgs[:, :, 2] = img
 
-    cmap = mpl.cm.get_cmap('jet', 256)
-    heatmap2 = cmap(heatmap,alpha = 0.2)
-    fig, (ax1, ax2) = plt.subplots(1,2,figsize = (5,5))
-    ax1.imshow((img))
-    ax2.imshow(heatmap)
-    plt.show()
+    return imgs
+
+def get_3channel(arr):
+
+    if len(arr.shape)>2 and arr.shape[2]==3:
+        return arr
+
+    arr = arr.reshape((arr.shape[0], arr.shape[1], -1))
+    arr = np.concatenate((arr, arr, arr), axis=2)
+
+    return arr
+
+def add_overlay(img, labels):
+
+    disp_img = np.copy(img)
+    
+    disp_img = get_3channel(disp_img)
+
+    combine_hmap = np.copy(labels)
+    
+    combine_hmap = cv2.resize(combine_hmap, (disp_img.shape[1], disp_img.shape[0]))
+    combine_hmap = np.clip(combine_hmap*255.0/np.max(combine_hmap), 0, 255)
+    combine_hmap = get_3channel(combine_hmap)
+
+    combine_hmap = cv2.applyColorMap((combine_hmap).astype('uint8'),cv2.COLORMAP_VIRIDIS)
+
+    disp_img = cv2.addWeighted(disp_img.astype('uint8'), 0.3, combine_hmap , 0.7,
+        0)
+
+    cv2.imshow('disp_img ', combine_hmap)
+    
+    cv2.imshow('vis_img ', img)
+    cv2.waitKey(-1)
 
 def overlay(inp_imgs, acts, grads):
 
@@ -57,7 +86,7 @@ def overlay(inp_imgs, acts, grads):
         heatmap = torch.mean(act, dim = 0).squeeze()
         print('after inp_img ', inp_img.shape)
         print('after heatmap ', heatmap.shape)
-        vis_img(inp_img, heatmap)
+        add_overlay(inp_img, heatmap)
 
 def vis_att_map():
 

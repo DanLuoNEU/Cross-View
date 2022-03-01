@@ -72,10 +72,10 @@ def load_data():
 def load_model():
 
     modelRoot = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/models/'
-    modelPath = modelRoot + dataset + '/0216/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
+    modelPath = modelRoot + dataset + '/0228/CV_dynamicsStream_fista01_reWeighted_sqrC_T72/'
 
     map_location = torch.device(gpu_id)
-    stateDict = torch.load(os.path.join(modelPath, '5.pth'), map_location=map_location)['state_dict']
+    stateDict = torch.load(os.path.join(modelPath, '15.pth'), map_location=map_location)['state_dict']
 
     return stateDict
 
