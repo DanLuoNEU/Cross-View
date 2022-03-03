@@ -40,7 +40,7 @@ class BaseNet(nn.Module):
 
         x = x.permute(0, 2, 1, 3, 4)  # [N,T,C,W,H] --> [N,C,T,W,H]
         conv_feat = self.base_model(x)
-
+        
         # reshape to original size
         conv_feat = conv_feat.permute(0, 2, 1, 3, 4)  # [N,C,T,W,H] --> [N,T,C,W,H]
 

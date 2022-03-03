@@ -287,9 +287,11 @@ class Fullclassification(nn.Module):
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
         self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=fistaLam, gpu_id=self.gpu_id)
+        #self.sparseCode = None
         
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
+
         sparseCode, Dict = self.sparseCoding(x, T)
 
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
@@ -298,15 +300,21 @@ class Fullclassification(nn.Module):
         # sparseCode = sparseCode**2
         # pdb.set_trace()
         sparseCode = sparseCode.detach()
+        
+        #print('sparseCode shape: ', sparseCode.shape)
         binaryCode = self.BinaryCoding(sparseCode)
+        #print('binaryCode shape: ', binaryCode.shape)
         #binaryCode = self.BinaryCoding(sparseCode*2, force_hard=True, temperature=0.1, inference=self.Inference)
 
         temp1 = sparseCode * binaryCode
+        #print('temp1 shape: ', temp1.shape)
         # binaryCode = binaryCode.t().reshape(self.num_binary, int(x.shape[-1]/self.dim), self.dim).unsqueeze(0)
         # print('binarycode shape:', binaryCode.shape)
         temp = binaryCode.reshape(binaryCode.shape[0], self.Npole, int(x.shape[-1]/self.dim), self.dim)
+        #print('temp shape: ', temp.shape)
         label = self.Classifier(temp)
-        
+        #print('label shape: ', label.shape)
+
         Reconstruction = torch.matmul(Dict, temp1)
 
         return label, binaryCode, Reconstruction, sparseCode

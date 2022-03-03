@@ -7,6 +7,7 @@ from skimage.io import imread
 from skimage.transform import resize
 import cv2
 import grad_cam_utils
+import saliency_utils
 
 Alpha = 0.1
 lam1 = 2
@@ -89,6 +90,26 @@ def overlay(inp_imgs, acts, grads):
         print('after heatmap ', heatmap.shape)
         add_overlay(inp_img, heatmap)
 
+def visualize_saliency(inp_imgs, saliency):
+
+    inp_imgs = inp_imgs.cpu().detach().numpy()
+    saliency = saliency.cpu().detach().numpy()
+    num_images = inp_imgs.shape[1]
+
+    for num in range(num_images):
+        inp_img = np.squeeze(inp_imgs[:, num, :, :, :])
+        sal = np.squeeze(saliency[:, num, :, :])
+        inp_img = inp_img.transpose((1, 2, 0))
+        
+        print('inp_img ', inp_img.shape)
+        print('sal ', sal.shape)
+        
+        sal = sal/np.max(sal)
+        sal = np.clip(sal * 255.0, 0, 255.0).astype('uint8')
+        cv2.imshow('inp_img ', inp_img)
+        cv2.imshow('sal ', sal)
+        cv2.waitKey(-1)
+        
 def vis_poles(inp_imgs, acts, grads):
 
     acts = acts.cpu().detach().numpy()
@@ -116,8 +137,9 @@ def vis_poles(inp_imgs, acts, grads):
 
 def vis_att_map_rgb():
 
-    gcmodel = GradCamModel_RGB().to('cuda:0')
     test_loader = load_data()
+    stateDict = load_model()
+    net = load_net(num_class, stateDict)
 
     for s, sample in enumerate(test_loader):
 
@@ -135,30 +157,12 @@ def vis_att_map_rgb():
         for i in range(0, inputSkeleton.shape[1]):
             input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
             inputImg_clip = inputImage[:,i, :, :, :]
-        
-            if fusion:
-                label_clip, _, _ = gcmodel.net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
-            else:
-                label_clip, b, outClip_v,  act = gcmodel(input_clip, inputImg_clip, t, fusion)
-                
 
-            label = label_clip
-            clipMSE = mseLoss(outClip_v, input_clip)
-            bi_gt = torch.zeros_like(b)
-            clipBI = L1loss(b, bi_gt)
-
+            inputImg_clip.requires_grad_()
+            label = net.RGBClassifier(inputImg_clip)
             y = torch.tensor([y]).cuda(gpu_id)
-            
-            loss = lam1 * Criterion(label, y) + Alpha * clipBI + lam2 * clipMSE
-            loss.backward()
-
-            pred = torch.argmax(label).data.item()
-            act = act.detach().cpu() #[1, 256, 7, 14, 14]
-            grads = gcmodel.get_act_grads().detach().cpu() #[1, 256, 7, 14, 14]
-            
-            print('act: ', act.shape)
-            print('input_images shape ', inputImg_clip.shape)
-            overlay(inputImg_clip, act, grads)
+            saliency = saliency_utils.compute_saliency_maps(inputImg_clip, y, label)
+            visualize_saliency(inputImg_clip, saliency)
 
 def vis_att_map_bp():
 
@@ -258,6 +262,6 @@ def vis_att_map_dyn():
 
 if __name__ == '__main__':
 
-    #vis_att_map_rgb()
+    vis_att_map_rgb()
     #vis_att_map_dyn()
     #vis_att_map_bp()

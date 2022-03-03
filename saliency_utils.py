@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from utils import *
@@ -93,81 +94,24 @@ def load_net(num_class, stateDict):
 
     return net
 
-class GradCamModel_RGB(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.gradients = None
-        self.tensorhook = []
-        self.layerhook = []
-        self.selected_out = None
-        
-        stateDict = load_model()
-        self.net = load_net(num_class, stateDict)
-
-        for name, param in self.net.named_parameters():
-            param.requires_grad = True
-            #print(name, param.data.shape)
-
-        # self.layerhook.append(self.net.RGBClassifier.featureExtractor.base_model[0].conv3d.register_forward_hook(self.forward_hook()))
-        self.layerhook.append(self.net.RGBClassifier.layer1.register_forward_hook(self.forward_hook()))
-        
-    def activations_hook(self,grad):
-        self.gradients = grad
-
-    def get_act_grads(self):
-        
-        return self.gradients
-
-    def forward_hook(self):
-
-        def hook(module, inp, out):    
-            self.selected_out = out
-            self.tensorhook.append(out.register_hook(self.activations_hook))
-            
-        return hook
-
-    def forward(self, input_clip, inputImg_clip, t, fusion=False):
-        label_clip, b, outClip_v = self.net(input_clip, inputImg_clip, t, fusion)
-        return label_clip, b, outClip_v, self.selected_out
-
-class GradCamModel_DYN(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.gradients = None
-        self.tensorhook = []
-        self.layerhook = []
-        self.selected_out = None
-        
-        stateDict = load_model()
-        self.net = load_net(num_class, stateDict)
-
-        for name, param in self.net.named_parameters():
-            param.requires_grad = True
-            #print(name, param.data.shape)
-
-        self.layerhook.append(self.net.dynamicsClassifier.sparseCoding.register_forward_hook(self.forward_hook()))
-        
-    def activations_hook(self,grad):
-        self.gradients = grad
-
-    def get_act_grads(self):
-        
-        return self.gradients
-
-    def forward_hook(self):
-
-        def hook(module, inp, out):
-            out = out[0]
-            print('out shape: ', out.shape)    
-            self.selected_out = out
-            self.tensorhook.append(out.register_hook(self.activations_hook))
-            
-        return hook
-
-    def forward(self, input_clip, inputImg_clip, t, fusion=False):
-        label_clip, b, outClip_v = self.net(input_clip, inputImg_clip, t, fusion)
-        return label_clip, b, outClip_v, self.selected_out
-
-if __name__ == '__main__':
+def compute_saliency_maps(X, y, scores):
     
-    gcmodel = GradCamModel_RGB().to('cuda:0')
+    #X, y, scores = X.cpu(), y.cpu(), scores.cpu()
+    #print('scores shape 0', scores, scores.shape)
+    #print('y shape ', y, y.shape)
+    #scores = (scores.gather(1, y.view(-1, 1)).squeeze())
+    print('X shape ', X.shape)
+
+    scores = scores[0][y]#.cuda(gpu_id)
+    
+    #print('scores shape 1', scores, scores.shape)
+    scores.backward(torch.FloatTensor([1.0]*scores.shape[0]).to('cuda'))
+    
+    xgrad = X.grad.data.abs()
+    print('xgrad shape ', xgrad.shape)
+
+    #saliency
+    saliency, _ = torch.max(xgrad, dim=2)
+    print('saliency shape ', saliency.shape)
+
+    return saliency
