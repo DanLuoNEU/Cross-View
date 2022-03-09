@@ -67,7 +67,7 @@ def load_data():
                                     phase='train', T=36, target_view='C002', project_view='C001', test_view='C003')
         testloader = DataLoader(testSet, batch_size=1, shuffle=True, num_workers=num_workers)
 
-    return testloader
+    return testSet, testloader
 
 def load_model():
 

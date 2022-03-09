@@ -286,12 +286,13 @@ class Fullclassification(nn.Module):
         self.BinaryCoding = Binarization(self.Npole)
         self.Classifier = classificationHead(num_class=self.num_class, Npole=Npole, dataType=self.dataType)
         # self.sparsecoding = sparseCodingGenerator(self.Drr, self.Dtheta, self.PRE, self.gpu_id)
-        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta,  lam=fistaLam, gpu_id=self.gpu_id)
+        self.sparseCoding = DyanEncoder(self.Drr, self.Dtheta, lam=fistaLam, gpu_id=self.gpu_id)
         #self.sparseCode = None
         
     def forward(self, x, T):
         # sparseCode, Dict = self.sparsecoding.forward2(x, T)
 
+        print('X shape: ', x.shape)
         sparseCode, Dict = self.sparseCoding(x, T)
 
         # inp = sparseCode.permute(2, 1, 0).unsqueeze(-1)
@@ -299,7 +300,7 @@ class Fullclassification(nn.Module):
 
         # sparseCode = sparseCode**2
         # pdb.set_trace()
-        sparseCode = sparseCode.detach()
+        #sparseCode = sparseCode.detach()
         
         #print('sparseCode shape: ', sparseCode.shape)
         binaryCode = self.BinaryCoding(sparseCode)

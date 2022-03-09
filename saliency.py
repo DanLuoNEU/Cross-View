@@ -90,7 +90,7 @@ def overlay(inp_imgs, acts, grads):
         print('after heatmap ', heatmap.shape)
         add_overlay(inp_img, heatmap)
 
-def visualize_saliency(inp_imgs, saliency):
+def visualize_saliency_rgb(inp_imgs, saliency):
 
     inp_imgs = inp_imgs.cpu().detach().numpy()
     saliency = saliency.cpu().detach().numpy()
@@ -110,13 +110,32 @@ def visualize_saliency(inp_imgs, saliency):
         cv2.imshow('sal ', sal)
         cv2.waitKey(-1)
         
+def visualize_saliency_dyn(inp_imgs, inp_clips, saliency):
+
+    inp_clips = inp_clips.cpu().detach().numpy()
+    inp_imgs = inp_imgs.cpu().detach().numpy()
+    saliency = saliency.cpu().detach().numpy()
+    num_clips = inp_clips.shape[1]
+
+    print('inp_clips shape: ', inp_clips.shape)
+    print('saliency shape: ', saliency.shape)
+
+    for num in range(num_clips):
+        inp_img = np.squeeze(inp_imgs[:, num, :, :, :])
+        inp_clip = np.squeeze(inp_clips[:, num, :])
+        sal = np.squeeze(saliency[:, num, :])
+        inp_img = inp_img.transpose((1, 2, 0))
+
+        print('inp_clip ', inp_clip.shape)
+        print('sal ', sal.shape)
+        print('sal min max: ', np.min(sal), np.max(sal), sal)
+
 def vis_poles(inp_imgs, acts, grads):
 
     acts = acts.cpu().detach().numpy()
     grads = grads.cpu().detach().numpy()
     inp_imgs = inp_imgs.cpu().detach().numpy()
     num_images = inp_imgs.shape[1]
-
     
     print('acts min max: ', np.min(acts), np.max(acts))
     print('grads min max: ', np.min(grads), np.max(grads))
@@ -161,14 +180,12 @@ def vis_att_map_rgb():
             inputImg_clip.requires_grad_()
             label = net.RGBClassifier(inputImg_clip)
             y = torch.tensor([y]).cuda(gpu_id)
-            saliency = saliency_utils.compute_saliency_maps(inputImg_clip, y, label)
-            visualize_saliency(inputImg_clip, saliency)
+            saliency = saliency_utils.compute_saliency_maps_rgb(inputImg_clip, y, label)
+            visualize_saliency_rgb(inputImg_clip, saliency)
 
-def vis_att_map_bp():
+def vis_att_map_dyn():
 
-    gcmodel = GradCamModel_RGB().to('cuda:0')
     test_loader = load_data()
-
     stateDict = load_model()
     net = load_net(num_class, stateDict)
 
@@ -188,80 +205,14 @@ def vis_att_map_bp():
         for i in range(0, inputSkeleton.shape[1]):
             input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
             inputImg_clip = inputImage[:,i, :, :, :]
-        
-            if fusion:
-                label_clip, _, _ = gcmodel.net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
-            else:
-                label1, binaryCode, Reconstruction, sparseCode = net.dynamicsClassifier(input_clip, t)
 
-            label = label_clip
-            clipMSE = mseLoss(outClip_v, input_clip)
-            bi_gt = torch.zeros_like(b)
-            clipBI = L1loss(b, bi_gt)
-
+            input_clip.requires_grad_()
+            label, _, _, _ = net.dynamicsClassifier(input_clip, t)
             y = torch.tensor([y]).cuda(gpu_id)
-            
-            loss = lam1 * Criterion(label, y) + Alpha * clipBI + lam2 * clipMSE
-            loss.backward()
-
-            pred = torch.argmax(label).data.item()
-            act = act.detach().cpu() #[1, 256, 7, 14, 14]
-            grads = gcmodel.get_act_grads().detach().cpu() #[1, 256, 7, 14, 14]
-            
-            print('act: ', act.shape)
-            print('input_images shape ', inputImg_clip.shape)
-            overlay(inputImg_clip, act, grads)
-
-def vis_att_map_dyn():
-
-    gcmodel = GradCamModel_DYN().to('cuda:0')
-    test_loader = load_data()
-
-    for s, sample in enumerate(test_loader):
-
-        'Multi'
-        inputSkeleton = sample['input_skeleton'].float().cuda(gpu_id)
-        input_images = sample['input_image']
-        inputImage = sample['input_image'].float().cuda(gpu_id)
-
-        t = inputSkeleton.shape[2]
-        y = sample['action'].data.item()
-
-        print('inputSkeleton shape: ', inputSkeleton.shape)
-        print('inputImage shape: ', inputImage.shape)
-        
-        for i in range(0, inputSkeleton.shape[1]):
-            input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
-            inputImg_clip = inputImage[:,i, :, :, :]
-        
-            if fusion:
-                label_clip, _, _ = gcmodel.net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
-            else:
-                label_clip, b, outClip_v,  act = gcmodel(input_clip, inputImg_clip, t, fusion)
-                
-
-            label = label_clip
-            clipMSE = mseLoss(outClip_v, input_clip)
-            bi_gt = torch.zeros_like(b)
-            clipBI = L1loss(b, bi_gt)
-
-            y = torch.tensor([y]).cuda(gpu_id)
-            
-            loss = lam1 * Criterion(label, y) + Alpha * clipBI + lam2 * clipMSE
-            loss.backward()
-
-            pred = torch.argmax(label).data.item()
-            act = act.detach().cpu() 
-            #grads = gcmodel.get_act_grads().detach().cpu() 
-            grads = act    
-            print('act: ', act.shape)
-            print('grads: ', grads.shape)
-            print('input_images shape ', inputImg_clip.shape)
-            
-            vis_poles(inputImg_clip, act, grads)
+            saliency = saliency_utils.compute_saliency_maps_dyn(input_clip, y, label)
+            visualize_saliency_dyn(inputImg_clip, input_clip, saliency)
 
 if __name__ == '__main__':
 
-    vis_att_map_rgb()
-    #vis_att_map_dyn()
-    #vis_att_map_bp()
+    #vis_att_map_rgb()
+    vis_att_map_dyn()

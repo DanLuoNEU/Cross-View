@@ -94,17 +94,17 @@ def load_net(num_class, stateDict):
 
     return net
 
-def compute_saliency_maps(X, y, scores):
+def compute_saliency_maps_rgb(X, y, scores):
     
     #X, y, scores = X.cpu(), y.cpu(), scores.cpu()
-    #print('scores shape 0', scores, scores.shape)
-    #print('y shape ', y, y.shape)
+    print('scores shape 0', scores, scores.shape)
+    print('y shape ', y, y.shape)
     #scores = (scores.gather(1, y.view(-1, 1)).squeeze())
     print('X shape ', X.shape)
 
     scores = scores[0][y]#.cuda(gpu_id)
     
-    #print('scores shape 1', scores, scores.shape)
+    print('scores shape 1', scores, scores.shape)
     scores.backward(torch.FloatTensor([1.0]*scores.shape[0]).to('cuda'))
     
     xgrad = X.grad.data.abs()
@@ -115,3 +115,21 @@ def compute_saliency_maps(X, y, scores):
     print('saliency shape ', saliency.shape)
 
     return saliency
+
+def compute_saliency_maps_dyn(X, y, scores):
+    
+    #X, y, scores = X.cpu(), y.cpu(), scores.cpu()
+    print('scores shape 0', scores, scores.shape)
+    print('y shape ', y, y.shape)
+    #scores = (scores.gather(1, y.view(-1, 1)).squeeze())
+    print('X shape ', X.shape)
+
+    scores = scores[0][y]#.cuda(gpu_id)
+    
+    print('scores shape 1', scores, scores.shape)
+    scores.backward(torch.FloatTensor([1.0]*scores.shape[0]).to('cuda'))
+    
+    xgrad = X.grad.data.abs()
+    print('xgrad shape ', xgrad.shape)
+
+    return xgrad
