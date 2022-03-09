@@ -158,7 +158,7 @@ class GradCamModel_DYN(nn.Module):
 
         def hook(module, inp, out):
             out = out[0]
-            print('out shape: ', out.shape)    
+            print('hook out shape: ', out.shape)    
             self.selected_out = out
             self.tensorhook.append(out.register_hook(self.activations_hook))
             

@@ -96,22 +96,28 @@ def vis_grad_pole(grads_org):
 
     grads = np.copy(grads_org)[0]
     grads = grads - np.min(grads)
-    print('grads 0 min max: ', np.min(grads), np.max(grads))
-
     grads = grads / np.max(grads)
-
-    print('grads 1 min max: ', np.min(grads), np.max(grads))
-
     grads = np.clip(grads*255, 0, 255).astype('uint8')    
     cv2.imshow('grads ', grads)
     cv2.waitKey(-1)
 
-def get_main_joints(grads_org):
+def get_main_joints(grads_org, num_pts = 10):
 
     grads = np.copy(grads_org)[0]
     max_grads = np.max(grads, axis=0)
+    max_grads = max_grads.reshape((-1, 2))
+    sum_max = np.sum(max_grads, axis=1)
     
-    print('max_grads: ', max_grads)
+    sum_max = sum_max.reshape((25, 1))
+    max_grads = np.concatenate((max_grads, sum_max), axis=1)
+
+    idxs = max_grads[:, -1].argsort()
+    idxs = np.flip(idxs)[:num_pts]
+    
+    # sort_sum = max_grads[max_grads[:, -1].argsort()]
+    # sort_sumr = np.flip(sort_sum, 0)
+    
+    return idxs
 
 def remap_image_val(org_img):
 
@@ -148,7 +154,7 @@ def plot_skeleton(org_img, skeletons, resize_fac=2):
     for skeleton in skeletons:
 
         skeleton = (int(skeleton[0]), int(skeleton[1]))
-        cv2.circle(img, center=skeleton, radius=1, color=(255,0,0), thickness=-1)
+        cv2.circle(img, center=skeleton, radius=2, color=(0,0,255), thickness=-1)
 
     return img
 
@@ -162,7 +168,6 @@ def vis_poles(data, inp_imgs, inp_clips, acts, grads):
 
     print('inp_clips shape: ', inp_clips.shape)     
     inp_clips_unnorm = np.copy(inp_clips).reshape((inp_clips.shape[0], inp_clips.shape[1], -1, 2))     
-
     inp_clips_unnorm = data.get_unnorm(inp_clips_unnorm)
     inp_clips_unnorm = inp_clips_unnorm.cpu().detach().numpy()
 
@@ -172,7 +177,9 @@ def vis_poles(data, inp_imgs, inp_clips, acts, grads):
     acts = np.clip(acts*255.0, 0, 255)
     acts = acts.astype('uint8')
 
-    vis_grad_pole(grads)
+    #vis_grad_pole(grads)
+    idxs = get_main_joints(grads)
+    inp_clips_unnorm = inp_clips_unnorm[:,idxs,:]
 
     for num in range(num_images):
 
