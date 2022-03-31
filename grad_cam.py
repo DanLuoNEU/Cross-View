@@ -101,7 +101,7 @@ def vis_grad_pole(grads_org):
     cv2.imshow('grads ', grads)
     cv2.waitKey(-1)
 
-def get_main_joints(grads_org, num_pts = 10):
+def get_main_joints(grads_org, num_pts = 5):
 
     grads = np.copy(grads_org)[0]
     max_grads = np.max(grads, axis=0)
@@ -142,22 +142,6 @@ def reproject_skel(skeletons):
 
     return skeletons
 
-def plot_skeleton(org_img, skeletons, resize_fac=2):
-
-    img = np.copy(org_img)
-    img = remap_image_val(img)
-    skeletons = reproject_skel(skeletons)
-
-    img = cv2.resize(img, None, fx=resize_fac, fy=resize_fac)
-    skeletons[:, :] *= resize_fac
-    
-    for skeleton in skeletons:
-
-        skeleton = (int(skeleton[0]), int(skeleton[1]))
-        cv2.circle(img, center=skeleton, radius=2, color=(0,0,255), thickness=-1)
-
-    return img
-
 def vis_poles(data, inp_imgs, inp_clips, acts, grads):
 
     acts = acts.cpu().detach().numpy()
@@ -178,19 +162,72 @@ def vis_poles(data, inp_imgs, inp_clips, acts, grads):
     acts = acts.astype('uint8')
 
     #vis_grad_pole(grads)
-    idxs = get_main_joints(grads)
-    inp_clips_unnorm = inp_clips_unnorm[:,idxs,:]
+    idxs = get_main_joints(grads, num_pts=25)
+    inp_clips_unnorm_main = inp_clips_unnorm[:,idxs,:]
+    print('inp_clips_unnorm_main shape ', inp_clips_unnorm_main.shape)
 
-    for num in range(num_images):
+    plot_joints(inp_imgs, inp_clips_unnorm_main)
 
-        inp_img = np.squeeze(inp_imgs[:, num, :, :, :])
-        inp_skel = inp_clips_unnorm[num, :, :] #(25, 2)
-        inp_img = inp_img.transpose((1, 2, 0)) #(224, 224, 3)
+def draw_bar(img, num_joints=25):
+
+    w = 255//num_joints
+    colors = [(c, 0, 255-c) for c in range(0, 255, w)][:25]
+    bw, bh = 10, 10
+    ofx, ofy = 400, 75
+    
+    for (i, color) in enumerate(colors):
+
+        # draw the class name + color on the legend
+        x, y = ofx, ofy + i*bh
+        x_, y_ = ofx + bw, ofy + (i + 1) * bh
+        cx, cy = ofx + bw//2, ofy + i*bh + bh//2
+
+        # cv2.putText(img, str(i+1), (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+        cv2.rectangle(img, (x, y), (x_, y_),
+            tuple(color), -1)
+
+    return img, colors
+
+def plot_joints(inp_imgs, inp_skels_org, main_joints=5, resize_frac=2):
+
+    inp_skels = np.copy(inp_skels_org)
+    num_frames = inp_skels.shape[0]
+
+    for num in range(num_frames):
         
-        skel_img = plot_skeleton(inp_img, inp_skel)
-        cv2.imshow('inp_img ', inp_img)
-        cv2.imshow('skel_img ', skel_img)
-        cv2.imshow('acts ', acts[0])
+        inp_img = np.squeeze(inp_imgs[:, num, :, :, :])
+        inp_img = inp_img.transpose((1, 2, 0)) #(224, 224, 3)
+        inp_img = cv2.resize(inp_img, None, fx=resize_frac, fy=resize_frac)
+        inp_img = remap_image_val(inp_img)
+
+        # org joints
+        img = np.zeros((224, 224, 3), dtype='uint8')
+        img = cv2.resize(img, None, fx=resize_frac, fy=resize_frac)
+        inp_skel = inp_skels[num, :, :]
+        inp_skel = reproject_skel(inp_skel)
+        inp_skel[:, :] *= resize_frac
+
+        img, colors = draw_bar(img, num_joints=25)
+        for skeleton, color in zip(inp_skel, colors):
+            
+            skeleton = (int(skeleton[0]), int(skeleton[1]))
+            cv2.circle(img, center=skeleton, radius=4, color=color, thickness=-1)
+            cv2.circle(inp_img, center=skeleton, radius=4, color=(0,0,255), thickness=-1)
+
+        # main joints
+        main_img = np.zeros((224, 224, 3), dtype='uint8')
+        main_img = cv2.resize(main_img, None, fx=resize_frac, fy=resize_frac)
+        inp_skels_main = inp_skel[:main_joints, :]
+
+        for skeleton in inp_skels_main:
+
+            skeleton = (int(skeleton[0]), int(skeleton[1]))
+            cv2.circle(main_img, center=skeleton, radius=4, color=(255,255,255), thickness=-1)
+
+        vis_img = np.hstack((img, main_img))
+        vis_img = np.hstack((vis_img, inp_img))
+        
+        cv2.imshow('vis_img ', vis_img)
         cv2.waitKey(-1)
 
 def vis_att_map_rgb():
