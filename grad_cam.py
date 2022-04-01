@@ -1,5 +1,5 @@
 import sklearn
-from cam_utils import GradCamModel_RGB, GradCamModel_DYN, load_data, load_model, load_net
+from cam_utils import GradCamModel_RGB, GradCamModel_DYN, load_test_data, load_train_data, load_model, load_net
 import torch
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -104,8 +104,10 @@ def vis_grad_pole(grads_org):
 def get_main_joints(grads_org, num_pts = 5):
 
     grads = np.copy(grads_org)[0]
+    grads = np.abs(grads)
     max_grads = np.max(grads, axis=0)
     max_grads = max_grads.reshape((-1, 2))
+
     sum_max = np.sum(max_grads, axis=1)
     
     sum_max = sum_max.reshape((25, 1))
@@ -142,7 +144,7 @@ def reproject_skel(skeletons):
 
     return skeletons
 
-def vis_poles(data, inp_imgs, inp_clips, acts, grads):
+def vis_poles(data, inp_imgs, inp_clips, acts, grads, img_num, view_num):
 
     acts = acts.cpu().detach().numpy()
     grads = grads.cpu().detach().numpy()
@@ -150,23 +152,25 @@ def vis_poles(data, inp_imgs, inp_clips, acts, grads):
     inp_clips = inp_clips.cpu().detach().numpy()
     num_images = inp_imgs.shape[1]
 
-    print('inp_clips shape: ', inp_clips.shape)     
+    #print('inp_clips shape: ', inp_clips.shape)     
     inp_clips_unnorm = np.copy(inp_clips).reshape((inp_clips.shape[0], inp_clips.shape[1], -1, 2))     
     inp_clips_unnorm = data.get_unnorm(inp_clips_unnorm)
     inp_clips_unnorm = inp_clips_unnorm.cpu().detach().numpy()
 
-    print('acts min max: ', np.min(acts), np.max(acts))
-    print('grads min max: ', np.min(grads), np.max(grads))
+    #print('acts min max: ', np.min(acts), np.max(acts))
+    #print('grads min max: ', np.min(grads), np.max(grads))
 
     acts = np.clip(acts*255.0, 0, 255)
     acts = acts.astype('uint8')
 
     #vis_grad_pole(grads)
     idxs = get_main_joints(grads, num_pts=25)
+    print('view_num: ', view_num, ' idxs: ', idxs+1)
     inp_clips_unnorm_main = inp_clips_unnorm[:,idxs,:]
-    print('inp_clips_unnorm_main shape ', inp_clips_unnorm_main.shape)
+    #print('skel sort: ', inp_clips_unnorm_main)
+    #print('inp_clips_unnorm_main shape ', inp_clips_unnorm_main.shape)
 
-    plot_joints(inp_imgs, inp_clips_unnorm_main)
+    plot_joints(inp_imgs, inp_clips_unnorm_main, img_num, view_num)
 
 def draw_bar(img, num_joints=25):
 
@@ -188,10 +192,15 @@ def draw_bar(img, num_joints=25):
 
     return img, colors
 
-def plot_joints(inp_imgs, inp_skels_org, main_joints=5, resize_frac=2):
+def plot_joints(inp_imgs, inp_skels_org, img_num, view_num, main_joints=5, resize_frac=2):
 
     inp_skels = np.copy(inp_skels_org)
     num_frames = inp_skels.shape[0]
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    video_path = save_dir + str(img_num) + '_' + str(view_num) + '.avi'
+    #print('video_path ', video_path)
+    out_video = cv2.VideoWriter(video_path, fourcc, 1, (1344, 448))
 
     for num in range(num_frames):
         
@@ -211,6 +220,7 @@ def plot_joints(inp_imgs, inp_skels_org, main_joints=5, resize_frac=2):
         for skeleton, color in zip(inp_skel, colors):
             
             skeleton = (int(skeleton[0]), int(skeleton[1]))
+            #print('skel: ',skeleton)
             cv2.circle(img, center=skeleton, radius=4, color=color, thickness=-1)
             cv2.circle(inp_img, center=skeleton, radius=4, color=(0,0,255), thickness=-1)
 
@@ -218,6 +228,8 @@ def plot_joints(inp_imgs, inp_skels_org, main_joints=5, resize_frac=2):
         main_img = np.zeros((224, 224, 3), dtype='uint8')
         main_img = cv2.resize(main_img, None, fx=resize_frac, fy=resize_frac)
         inp_skels_main = inp_skel[:main_joints, :]
+        # print('inp_skels_main ', inp_skels_main.shape, inp_skels_main)
+        # print('inp_skel ', inp_skel.shape, inp_skel)
 
         for skeleton in inp_skels_main:
 
@@ -226,14 +238,22 @@ def plot_joints(inp_imgs, inp_skels_org, main_joints=5, resize_frac=2):
 
         vis_img = np.hstack((img, main_img))
         vis_img = np.hstack((vis_img, inp_img))
-        
+        #print('vis_img shape: ', vis_img.shape)
+        img_path = save_dir + str(img_num) + '_' + str(view_num) + '_' + str(num).zfill(2) + '.png'
+        #cv2.imwrite(img_path, vis_img)
+        # out_video.write(vis_img)
+
         cv2.imshow('vis_img ', vis_img)
         cv2.waitKey(-1)
+        
+    out_video.release()
+        
+        
 
 def vis_att_map_rgb():
 
     gcmodel = GradCamModel_RGB().to('cuda:0')
-    _, test_loader = load_data()
+    _, test_loader = load_test_data()
 
     for s, sample in enumerate(test_loader):
 
@@ -272,14 +292,14 @@ def vis_att_map_rgb():
             act = act.detach().cpu() #[1, 256, 7, 14, 14]
             grads = gcmodel.get_act_grads().detach().cpu() #[1, 256, 7, 14, 14]
             
-            print('act: ', act.shape)
-            print('input_images shape ', inputImg_clip.shape)
+            #print('act: ', act.shape)
+            #print('input_images shape ', inputImg_clip.shape)
             overlay(inputImg_clip, act, grads)
 
-def vis_att_map_dyn():
+def vis_att_map_dyn_test():
 
     gcmodel = GradCamModel_DYN().to('cuda:0')
-    test_dataset, test_loader = load_data()
+    test_dataset, test_loader = load_test_data()
 
     for s, sample in enumerate(test_loader):
 
@@ -291,42 +311,77 @@ def vis_att_map_dyn():
         t = inputSkeleton.shape[2]
         y = sample['action'].data.item()
 
-        print('sample keys: ', sample.keys())
-        print('inputSkeleton shape: ', inputSkeleton.shape)
-        print('inputImage shape: ', inputImage.shape)
+        #print('sample keys: ', sample.keys())
+        #print('inputSkeleton shape: ', inputSkeleton.shape)
+        #print('inputImage shape: ', inputImage.shape)
         
         for i in range(0, inputSkeleton.shape[1]):
             input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
             inputImg_clip = inputImage[:, i, :, :, :]
+
+            predict_vis_dyn(gcmodel, input_clip, inputImg_clip, t, y, test_dataset)
+
+def predict_vis_dyn(gcmodel, input_clip, inputImg_clip, t, y, test_dataset, img_num, view_num):
+
+    if fusion:
+        label_clip, _, _ = gcmodel.net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
+    else:
+        label_clip, b, outClip_v,  act = gcmodel(input_clip, inputImg_clip, t, fusion)
         
-            if fusion:
-                label_clip, _, _ = gcmodel.net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
-            else:
-                label_clip, b, outClip_v,  act = gcmodel(input_clip, inputImg_clip, t, fusion)
-                
 
-            label = label_clip
-            clipMSE = mseLoss(outClip_v, input_clip)
-            bi_gt = torch.zeros_like(b)
-            clipBI = L1loss(b, bi_gt)
+    label = label_clip
+    clipMSE = mseLoss(outClip_v, input_clip)
+    bi_gt = torch.zeros_like(b)
+    clipBI = L1loss(b, bi_gt)
 
-            y = torch.tensor([y]).cuda(gpu_id)
-            
-            loss = lam1 * Criterion(label, y) + Alpha * clipBI + lam2 * clipMSE
-            loss.backward()
+    y = torch.tensor([y]).cuda(gpu_id)
+    
+    loss = lam1 * Criterion(label, y) + Alpha * clipBI + lam2 * clipMSE
+    loss.backward()
 
-            pred = torch.argmax(label).data.item()
-            act = act.detach().cpu() 
-            grads = gcmodel.get_act_grads().detach().cpu() 
-               
-            print('act: ', act.shape)
-            print('grads: ', grads.shape)
-            print('input_images shape ', inputImg_clip.shape)
-            print('input_clip ', input_clip[0], input_clip[0].shape)
+    pred = torch.argmax(label).data.item()
+    act = act.detach().cpu() 
+    grads = gcmodel.get_act_grads().detach().cpu() 
+        
+    # print('act: ', act.shape)
+    # print('grads: ', grads.shape)
+    # print('input_images shape ', inputImg_clip.shape)
+    # print('input_clip ', input_clip[0].shape)
 
-            vis_poles(test_dataset, inputImg_clip, input_clip, act, grads)
+    vis_poles(test_dataset, inputImg_clip, input_clip, act, grads, img_num, view_num)
+
+def vis_att_map_dyn_train():
+
+    gcmodel = GradCamModel_DYN().to('cuda:0')
+    train_dataset, train_loader = load_train_data()
+
+    for s, sample in enumerate(train_loader):
+
+        'Multi'
+        input_v1_skels = sample['target_skeleton'].float().cuda(gpu_id)
+        input_v2_skels = sample['project_skeleton'].float().cuda(gpu_id)
+        input_v1_img = sample['target_image'].float().cuda(gpu_id)
+        input_v2_img = sample['project_image'].float().cuda(gpu_id)
+
+        t1 = input_v1_skels.shape[2]
+        t2 = input_v2_skels.shape[2]
+
+        y = sample['action'].data.item()
+
+        for i in range(1):#range(0, input_v2_skels.shape[1]):
+
+            input_v1_skel = input_v1_skels[:, i, :, :, :].reshape(1, t1, -1)
+            input_v2_skel = input_v2_skels[:, i, :, :, :].reshape(1, t2, -1)
+            img1_clip = input_v1_img[:,i,:,:,:]
+            img2_clip = input_v2_img[:,i,:,:,:]
+
+            predict_vis_dyn(gcmodel, input_v1_skel, img1_clip, t1, y, train_dataset, s, 1)
+
+            predict_vis_dyn(gcmodel, input_v2_skel, img2_clip, t2, y, train_dataset, s, 2)
 
 if __name__ == '__main__':
 
+    save_dir = '/home/balaji/Documents/code/RSL/CS_CV/Cross-View/vis_res/'
     #vis_att_map_rgb()
-    vis_att_map_dyn()
+    #vis_att_map_dyn_test()
+    vis_att_map_dyn_train()

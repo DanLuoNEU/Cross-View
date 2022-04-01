@@ -39,7 +39,7 @@ dataType = '2D'
 clip = 'Multi'
 fusion = False
 
-def load_data():
+def load_test_data():
 
     if dataset == 'NUCLA':
         num_class = 10
@@ -68,6 +68,37 @@ def load_data():
         testloader = DataLoader(testSet, batch_size=1, shuffle=True, num_workers=num_workers)
 
     return testSet, testloader
+
+def load_train_data():
+
+    if dataset == 'NUCLA':
+        num_class = 10
+        path_list = f"/data/Dan/N-UCLA_MA_3D/lists"
+        
+        'CS:'
+
+        'CV:'
+        trainSet = NUCLA_viewProjection(root_list=path_list, dataType=dataType, clip=clip, phase='train', cam='2,1', T=T,
+                                   target_view='view_2', project_view='view_1', test_view='view_3')
+        trainloader = DataLoader(trainSet, batch_size=1, shuffle=True, num_workers=num_workers)
+
+    elif dataset == 'NTU':
+        num_class = 60
+        if dataType == '3D':
+            root_skeleton = "/data/Yuexi/NTU-RGBD/skeletons/npy"
+        else:
+            root_skeleton = "/data/NTU-RGBD/poses"
+        nanList = list(np.load('./NTU_badList.npz')['x'])
+        'CS:'
+
+        'CV:'
+        trainSet = NTURGBD_viewProjection(root_skeleton=root_skeleton,
+                                root_list="/data/Yuexi/NTU-RGBD/list/", nanList=nanList, dataType= dataType, clip=clip,
+                                phase='train', T=36, target_view='C002', project_view='C003', test_view='C001')
+
+        trainloader = torch.utils.data.DataLoader(trainSet, batch_size=1, shuffle=False, num_workers=2, pin_memory=True)
+
+    return trainSet, trainloader
 
 def load_model():
 
@@ -158,7 +189,7 @@ class GradCamModel_DYN(nn.Module):
 
         def hook(module, inp, out):
             out = out[0]
-            print('hook out shape: ', out.shape)    
+            #print('hook out shape: ', out.shape)    
             self.selected_out = out
             self.tensorhook.append(out.register_hook(self.activations_hook))
             
