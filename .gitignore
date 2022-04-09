@@ -15,5 +15,7 @@ matFile/
 matFile_new/
 ModelFile/
 plotDict/
+resultFile/
 runs/
+testlog/
 vis/
