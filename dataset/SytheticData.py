@@ -6,13 +6,9 @@ import random
 import torch
 import torch.utils.data as dataset
 from scipy.sparse import rand
-<<<<<<< HEAD
 random.seed(0)
 torch.manual_seed(0)
 np.random.seed(0)
-=======
-
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from PIL import Image, ImageFilter, ImageEnhance

@@ -46,11 +46,7 @@
 
 import torch
 import torch.nn as nn
-<<<<<<< HEAD
 import pdb
-=======
-
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 class HardSoftmax(torch.autograd.Function):
     @staticmethod
@@ -66,13 +62,7 @@ class HardSoftmax(torch.autograd.Function):
             y_hard[input > a] = 1
             y_hard[input <= b] = 1
 
-<<<<<<< HEAD
         # y_hard[input >= 0.6] =1
-=======
-        # y_hard[input >= 0.6] = 1
-        # y_hard[input <= 0.4] = 1
-        # y_hard[input>=0.5] =1
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
         return y_hard
 
@@ -104,25 +94,16 @@ class GumbelSigmoid(torch.nn.Module):
             gumbel_trick_log_prob_samples = logits + gumbel_samples_tensor.data
         else:
             gumbel_trick_log_prob_samples = logits
-<<<<<<< HEAD
 
         soft_samples = self.sigmoid(gumbel_trick_log_prob_samples / temperature)
         # pdb.set_trace()
-=======
-        soft_samples = self.sigmoid(gumbel_trick_log_prob_samples / temperature)
-
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
         return soft_samples
 
     def gumbel_sigmoid(self, logits, temperature=2 / 3, hard=False, inference=False):
         out = self.gumbel_sigmoid_sample(logits, temperature, inference)
         if hard:
             out = HardSoftmax.apply(out)
-<<<<<<< HEAD
         # pdb.set_trace()
-=======
-
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
         return out
 
     def forward(self, logits, force_hard=False, temperature=2 / 3, inference=False):

@@ -171,10 +171,7 @@ class I3D_head(torch.nn.Module):
         # Mixed 5
         self.mixed_5b = Mixed(832, [256, 160, 320, 32, 128, 128])
         self.mixed_5c = Mixed(832, [384, 192, 384, 48, 128, 128])
-<<<<<<< HEAD
         self.avg_pool = torch.nn.AvgPool3d((2, 7, 7), (1,1,1))
-=======
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 class I3D(torch.nn.Module):
     def __init__(self,
