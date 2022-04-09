@@ -1,0 +1,147 @@
+===train: 424samples ===
+===test: 100samples ===
+Loading pretrained I3D:
+Loading I3D head pretrained
+training dataset: NUCLA
+alpha: 0 lam1: 1 lam2: 1
+start training epoch: 0
+=== train: 18694 samples ===
+=== test: 100 samples ===
+Loading pretrained I3D:
+Loading I3D head pretrained
+training dataset: NTU
+alpha: 0.1 lam1: 2 lam2: 1
+start training epoch: 0
+=== train: 18694 samples ===
+=== test: 100 samples ===
+Loading pretrained I3D:
+Loading I3D head pretrained
+training dataset: NTU
+alpha: 0 lam1: 1 lam2: 1
+start training epoch: 0
+epoch: 0 |loss: 6.870155745941513 |cls: 6.2671788352519835 |Bi: 0.18159425757245495 |mse: 0.6029769175541522
+start validating:
+epoch: 0 Acc:0.3200 count: 100 pred_cnt: 32
+start training epoch: 1
+epoch: 1 |loss: 2.2625749878396437 |cls: 1.8544499958861191 |Bi: 0.17489751164344544 |mse: 0.4081249986410049
+start training epoch: 2
+epoch: 2 |loss: 1.4104838725882318 |cls: 1.0645014259170569 |Bi: 0.17527784836777258 |mse: 0.3459824464577118
+start training epoch: 3
+epoch: 3 |loss: 0.9466477003067134 |cls: 0.6235409951146696 |Bi: 0.17744316799425572 |mse: 0.3231067077449209
+start training epoch: 4
+epoch: 4 |loss: 0.7521803362771675 |cls: 0.451595228822601 |Bi: 0.1794955913364044 |mse: 0.3005851087447877
+start training epoch: 5
+epoch: 5 |loss: 0.633793130172153 |cls: 0.34659608675615516 |Bi: 0.18149874571113372 |mse: 0.28719704142644814
+start validating:
+epoch: 5 Acc:0.7700 count: 100 pred_cnt: 77
+start training epoch: 6
+epoch: 6 |loss: 0.5565200602978397 |cls: 0.277075557290029 |Bi: 0.18360952128884647 |mse: 0.2794445032084455
+start training epoch: 7
+epoch: 7 |loss: 0.5520245479837166 |cls: 0.2874810924886531 |Bi: 0.18533585881287196 |mse: 0.2645434564431714
+start training epoch: 8
+epoch: 8 |loss: 0.4073539009605499 |cls: 0.1488558998363104 |Bi: 0.18652975282473666 |mse: 0.2584980016888365
+start training epoch: 9
+Traceback (most recent call last):
+  File "trainClassifier_Multi.py", line 151, in <module>
+    for i, sample in enumerate(trainloader):
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1203, in _next_data
+    return self._process_data(data)
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1229, in _process_data
+    data.reraise()
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/_utils.py", line 425, in reraise
+    raise self.exc_type(msg)
+ValueError: Caught ValueError in DataLoader worker process 1.
+Original Traceback (most recent call last):
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/worker.py", line 287, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 555, in __getitem__
+    targetView_multiSkeleton, targetView_multiImage, info_project = self.get_data_multi(name_sample_project)
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 395, in get_data_multi
+    skeleton, usedID = getJsonData(self.root_skeleton, name_sample)
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 31, in getJsonData
+    skeleton = np.concatenate((skeleton))
+  File "<__array_function__ internals>", line 6, in concatenate
+ValueError: need at least one array to concatenate
+
+epoch: 9 |loss: 0.31870288806879576 |cls: 0.06838561505806774 |Bi: 0.18705477356418687 |mse: 0.25031727323235003
+start training epoch: 10
+Traceback (most recent call last):
+  File "trainClassifier_Multi.py", line 151, in <module>
+    for i, sample in enumerate(trainloader):
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 521, in __next__
+    data = self._next_data()
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1203, in _next_data
+    return self._process_data(data)
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1229, in _process_data
+    data.reraise()
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/_utils.py", line 425, in reraise
+    raise self.exc_type(msg)
+ValueError: Caught ValueError in DataLoader worker process 1.
+Original Traceback (most recent call last):
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/worker.py", line 287, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuexi/pyenv_1.6/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 555, in __getitem__
+    targetView_multiSkeleton, targetView_multiImage, info_project = self.get_data_multi(name_sample_project)
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 395, in get_data_multi
+    skeleton, usedID = getJsonData(self.root_skeleton, name_sample)
+  File "/home/yuexi/Documents/Cross-view/dataset/NTU_viewProjection.py", line 31, in getJsonData
+    skeleton = np.concatenate((skeleton))
+  File "<__array_function__ internals>", line 6, in concatenate
+ValueError: need at least one array to concatenate
+
+epoch: 10 |loss: 0.3420685312857869 |cls: 0.09674060388285152 |Bi: 0.18797316858193502 |mse: 0.24532792971478798
+start validating:
+epoch: 10 Acc:0.7300 count: 100 pred_cnt: 73
+start training epoch: 11
+epoch: 11 |loss: 0.3551755537364614 |cls: 0.11415291885085993 |Bi: 0.18851327762570022 |mse: 0.24102263465451784
+start training epoch: 12
+epoch: 12 |loss: 0.37483930596334963 |cls: 0.1382504453874218 |Bi: 0.18904938257984677 |mse: 0.23658886117962813
+start training epoch: 13
+epoch: 13 |loss: 0.28980254578922504 |cls: 0.05925052472887796 |Bi: 0.18946106824145284 |mse: 0.23055202151727774
+start training epoch: 14
+epoch: 14 |loss: 0.2551744320261828 |cls: 0.026810158466485726 |Bi: 0.18953060184798712 |mse: 0.22836427373470045
+start training epoch: 15
+epoch: 15 |loss: 0.24511350472435742 |cls: 0.021406280460726138 |Bi: 0.1899218772327141 |mse: 0.22370722422879827
+start validating:
+epoch: 15 Acc:0.7300 count: 100 pred_cnt: 73
+start training epoch: 16
+epoch: 16 |loss: 0.24605708037566762 |cls: 0.026087192304467356 |Bi: 0.1904737553471383 |mse: 0.21996988786918767
+start training epoch: 17
+epoch: 17 |loss: 0.2594293134291393 |cls: 0.04245284927773949 |Bi: 0.1904519280893201 |mse: 0.21697646364658074
+start training epoch: 18
+epoch: 18 |loss: 0.350761465813947 |cls: 0.1348861136276647 |Bi: 0.191080321153661 |mse: 0.2158753504458527
+start training epoch: 19
+epoch: 19 |loss: 0.3207312498926976 |cls: 0.1083164820896599 |Bi: 0.19127129538441603 |mse: 0.21241476852927282
+start training epoch: 20
+epoch: 20 |loss: 0.35239944778786936 |cls: 0.14383934572096324 |Bi: 0.19143858727700305 |mse: 0.20856009949304005
+start validating:
+epoch: 20 Acc:0.7500 count: 100 pred_cnt: 75
+start training epoch: 21
+epoch: 21 |loss: 0.25870035507140754 |cls: 0.05039902048478883 |Bi: 0.1916543676711197 |mse: 0.20830133538196227
+start training epoch: 22
+epoch: 22 |loss: 0.22632539418047154 |cls: 0.020480720639586045 |Bi: 0.1920883686738616 |mse: 0.20584467285475255
+start training epoch: 23
+epoch: 23 |loss: 0.22240558485797043 |cls: 0.020694874011292004 |Bi: 0.19227333659446746 |mse: 0.20171071053510048
+start training epoch: 24
+epoch: 24 |loss: 0.2284580994142606 |cls: 0.028678825958527974 |Bi: 0.19258892493111626 |mse: 0.19977927288243147
+start training epoch: 25
+epoch: 25 |loss: 0.21525532313521495 |cls: 0.016425160968478625 |Bi: 0.19289938696958828 |mse: 0.19883016124079422
+start validating:
+epoch: 25 Acc:0.7800 count: 100 pred_cnt: 78
+start training epoch: 26
+epoch: 26 |loss: 0.2166556384544029 |cls: 0.019450120065220795 |Bi: 0.19304944182095943 |mse: 0.19720551888002655
+start training epoch: 27
+epoch: 27 |loss: 0.21113620003419578 |cls: 0.014591418965453231 |Bi: 0.1933731847653552 |mse: 0.1965447801214979
+start training epoch: 28
+epoch: 28 |loss: 0.21378704981948687 |cls: 0.019957429933940993 |Bi: 0.1934472109929149 |mse: 0.19382961945693922
+start training epoch: 29

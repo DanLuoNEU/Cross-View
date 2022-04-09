@@ -1,0 +1,254 @@
+close all;
+% load('./matFile/coeff_compare_openpose_a11_fis1.mat');
+load,('./matFile/Sythetic_BiOnly_cls1_6poles.mat');
+% out_c1 = permute(c1, [2,1]);
+out_c1 = c1;
+% out_c2 = permute(c2, [2,1]);
+out_c2 = c2;
+
+out1 = b1;
+out2 = b2;
+
+i = 1;
+% j = 1;
+figure
+subplot(2,1,1)
+plot(out1(i,:),'b-*','LineWidth', 2, 'MarkerSize',5)
+hold on
+plot(out2(i,:),'r-o', 'LineWidth', 2, 'MarkerSize',4)
+% title('Non-binarized Coeff from view1 and view2 of the same joint', 'FontSize', 14)
+legend('view1','view2', 'FontSize',14)
+xlabel('number of poles', 'FontSize', 18)
+ylim([-2,2]);
+title('Synthetic data, negative pair:Binarized Coeff from view1 and view2', 'FontSize', 18)
+
+% j = 1;
+subplot(2,1,2)
+plot(out_c1(i,:),'b-*','LineWidth', 2, 'MarkerSize',5)
+hold on
+plot(out_c2(i,:),'r-o','LineWidth', 2, 'MarkerSize',4)
+legend('view1','view2','FontSize',14)
+xlabel('number of poles', 'FontSize', 18)
+% ylim([-2,2]);
+title('Synthetic data, negative pair: Original input from view1 and view2', 'FontSize', 18)
+%%
+close all
+load('./matFile/Sythetic_BiCE_m8A2_11_ep90_cls1_6poles.mat');
+
+figure(2)
+subplot(3,1,1)
+plot(sampleCLS, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Loss:samples from the same class');
+
+subplot(3,1,2)
+plot(diffCLS, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Loss:samples from the different class');
+
+subplot(3,1,3)
+plot(BiLoss, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Loss: Binarization Term');
+
+figure(3)
+subplot(2,1,1)
+plot(SP1, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Cross Entropy loss: view 1');
+
+subplot(2,1,2)
+plot(SP2, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Cross Entropy loss: view 2');
+
+%%
+close all
+clear all
+load('./matFile/syntheticClassification_Coeff_5Cls.mat')
+figure(1)
+plot(LOSS, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Training Loss(total loss)','FontSize',16);
+xlabel('Epoch','FontSize',14)
+
+figure(2)
+plot(Acc2, 'b-*','LineWidth', 2, 'MarkerSize',3);
+title('Validation Accuracy','FontSize',16);
+xlabel('Epoch','FontSize',14)
+ylim([0.5,1]);
+
+%%
+close all
+clear all
+
+load('./matFile/NUCLA_sparseCode_cls0_trainSet.mat');
+figure(1)
+
+i = 12;
+y1 = c1(:,:,i);
+y2 = c2(:,:,i);
+
+v1 = reshape(skeleton_v1,[25,40]);
+v2 = reshape(skeleton_v2, [25,40]);
+
+subplot(2,1,1);
+plot(y1,'b-*','LineWidth', 2, 'MarkerSize',5)
+hold on
+plot(y2,'r-o','LineWidth', 2, 'MarkerSize',4)
+legend('view1','view2','FontSize',14)
+xlabel('number of poles', 'FontSize', 18)
+title('positive Pair: Coeff from view1 and view2 of the same joint', 'FontSize', 14)
+
+subplot(2,1,2);
+plot(v1(:,i), 'b-*','LineWidth', 2, 'MarkerSize',5);
+hold on
+plot(v2(:,i),'r-o','LineWidth', 2, 'MarkerSize',4)
+legend('view1','view2','FontSize',14)
+xlabel('Frame Number');
+title('positive Pair: trajectory of the same joint', 'FontSize', 14);
+
+%%
+% img = imread('./vis/UCLA/RGB/NegativePair/a01_s08_e02/view2_rgb_0.jpg');
+% imshow(img), hold on
+close all
+i = 10;
+path = './vis/UCLA/RGB/NegativePair/a02_s08_e02/';
+imgList = dir('./vis/UCLA/RGB/NegativePair/a02_s08_e02/*.jpg');
+for t = 1 : length(imgList)
+    img = imread(fullfile(path, imgList(t).name));
+    imshow(img), hold on  
+    
+    joint = squeeze(skeleton_v1(t,i,:))';
+    plot(joint(1,2), joint(1,1), 'r*', 'MarkerSize', 4);
+    pause;
+    
+end
+
+
+%%
+ load('./matFile/syntheticData_negativePair_5cls');
+
+figure(1)
+i = 16;
+
+plot(view1(:,i), 'b-*','LineWidth', 2, 'MarkerSize',5);
+hold on
+plot(view2(:,i),'r-o','LineWidth', 2, 'MarkerSize',4)
+
+title('Negative Pair');
+%%
+load('RGB_UCLA_pred.mat');
+Acc2 = zeros(length(gt),1);
+for i = 1 : length(gt)
+    
+    acc = length(pred{1,i})/length(gt{1,i});
+    Acc2(i,1) = acc;
+    
+    
+    
+end
+
+%%
+close 
+
+meanAcc = [0.975,1,1,0.935,0.89,0.9, 1, 0.92,0.85, 0.94];
+meanRGB = [0.97, 0.95, 0.98, 0.77, 0.72, 0.8, 0.95, 0.79, 0.81, 0.9];
+meanDY = [0.96, 0.97, 0.87,0.84, 0.863, 0.762,1,0.90, 0.82, 0.92];
+
+meanComb = [meanAcc;meanRGB;meanDY]';
+
+bar(meanComb, 'grouped');
+% set(fig(1), 'FaceColor','y')
+% set(fig(2), 'FaceColor','b')
+% set(fig(3), 'FaceColor','g')
+
+
+ylim([0,1.2]);
+title('Accuracy of Each Class','FontSize', 18)
+ylabel('Accuracy','FontSize', 18);
+xlabel('Action Class', 'FontSize', 18);
+legend('2 Stream', 'RGB Stream', 'Dynamic Stream');
+
+%%
+load('./resultFile/synthetic_gumbel.mat')
+c_final_python = [ 0.0000e+00,  1.2916e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00, -1.8000e-03,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  9.2616e-01,  6.7531e-01,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00, -6.4364e-01,  1.2285e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00, -3.0271e-03,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  4.8964e-01,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00, -2.1452e+00,  7.7277e-01,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,...,
+          0.0000e+00,  0.0000e+00,  0.0000e+00,  0.0000e+00,  2.7522e-03,...,
+          0.0000e+00];
+
+
+lambda = 1;
+w = ones(61,1);
+lam = w*lambda;
+n = 800;
+
+y = dictionary * coeff(1,:,:)';
+iter = 1;
+while iter < 3
+    iter
+    c = lasso_fista_oc(dictionary, y,  lam);
+    w = 1./(abs(c)+1e-2);
+    w_norm = w/norm(w,'fro');
+    lam = w_norm*61*lambda;
+    iter = iter+1;
+
+end
+c_final = c;
+close all
+figure
+plot(c_gt, 'r-*','LineWidth',1), hold on
+plot(c_final, 'b-o','LineWidth',1)
+
+plot(c_final_python, 'g-o','LineWidth',1)
+legend('gt','reweighted_{matlab}',  'reweighted_{python}');
+%%
+load('./matFile_new/a02_s10_e02.mat');
+load('./matFile_new/a02_s10_e02_v1.mat');
+load('./matFile_new/a02_s10_e02_v3.mat');
+
+close all
+jt = 1;
+
+% bi_1 = bi_v1(1,:,jt);
+% bi_2 = bi_v2(1,:,jt);
+bi_3 = bi_v3(1,:,jt);
+
+figure(1)
+% plot(bi_1, 'r-*', 'LineWidth',2), hold on
+% plot(bi_2, 'b-*', 'LineWidth',2), hold on
+plot(bi_3, 'c-*', 'LineWidth',2)
+% s1 = sum(bi_1)
+% s2 = sum(bi_2)
+s3 = sum(bi_3)
+
+% legend( 'view_{2}', 'view_{3}')
+title('BinaryCode; training:v1,v2; testing:v3')
+
+
+figure(2)
+% plot(coeff_v1(1,:,jt), 'r-*', 'LineWidth',2), hold on
+% plot(coeff_v2(1,:,jt), 'b-*', 'LineWidth',2), hold on
+plot(coeff_v3(1,:,jt), 'c-*', 'LineWidth',2)
+% legend('view_{2}', 'view_{3}')
+title('Ceoff; training:v1,v2; testing:v3')
+
+
+figure(3)
+
+plot(input_v3(1,:,jt),  'r-*', 'LineWidth',2),hold on
+plot(output_v3(1,:,jt),'b-*', 'LineWidth',2)
+legend('input', 'reconstruction')
+title('Reconstruction Error, reconstruction=DxCxbi')
+
+%%
+
+
+
+
+
+
+
