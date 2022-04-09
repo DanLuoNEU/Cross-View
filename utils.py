@@ -7,12 +7,17 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn
 from torch.autograd import Variable
+<<<<<<< HEAD
 from modelZoo.DyanOF import OFModel, fista
 random.seed(0)
 torch.manual_seed(0)
 np.random.seed(0)
 
 
+=======
+
+from modelZoo.DyanOF import OFModel, fista
+>>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 def weightPoles(c_array, Drr, Dtheta, dictionary):
     c_array = c_array.cpu().numpy()
     r = Drr.cpu().numpy()
@@ -414,6 +419,7 @@ def Gaussian(sigma):
 #         # This operation is a simple elementwise-multiplication of the expanded and tiled matrices.
 #         return self.A_expander(A) * self.B_tiler(B)
 
+<<<<<<< HEAD
 
 
 def get_reducedDictionary(Drr, Dtheta, THD_distance):
@@ -445,3 +451,5 @@ def get_reducedDictionary(Drr, Dtheta, THD_distance):
 def distance_polar(rho_1,theta_1,rho_2,theta_2):
     return np.sqrt(rho_1**2+rho_2**2-2*rho_1*rho_2*(np.cos(theta_1)*np.cos(theta_2)+np.sin(theta_1)*np.sin(theta_2)))
 
+=======
+>>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab

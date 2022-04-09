@@ -65,7 +65,6 @@ def creatRealDictionary(T, rr, theta, gpu_id):
 
     return dic
 
-
 def fista(D, Y, lambd,maxIter,gpu_id):
     # D = D.type(dtype=torch.double)
     DtD = torch.matmul(torch.t(D),D)

@@ -171,7 +171,6 @@ for epoch in range(0, Epoch+1):
         # input_v2 = sample['project_view_multiClips'].float().cuda(gpu_id)
         '2S'
 
-
         input_v1 = sample['target_skeleton'].float().cuda(gpu_id)
         input_v2 = sample['project_skeleton'].float().cuda(gpu_id)
         input_v1_img = sample['target_image'].float().cuda(gpu_id)
