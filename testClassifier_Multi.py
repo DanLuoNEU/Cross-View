@@ -31,22 +31,16 @@ dataset = 'NUCLA'
 Alpha = 0.1
 lam1 = 1
 lam2 = 1
-<<<<<<< HEAD
 N = 80*2
 # N = 42*2 # setup1
 # N = 53*2    #setup2
 # N = 50*2    # setup3
 # Epoch = 150
-=======
-N = 40*2
-Epoch = 150
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 dataType = '2D'
 # clip = 'Single'
 clip = 'Multi'
 fusion = False
 # fusion = True
-<<<<<<< HEAD
 #
 modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
 
@@ -71,49 +65,21 @@ data = {'Drr': Drr.cpu().numpy(), 'Dtheta':Dtheta.cpu().numpy()}
 # scipy.io.savemat('/data/Yuexi/Cross_view/1129/setup1/UCLA_fista02_reduce_dictionary_v1.mat', mdict=data)
 # Drr = stateDict['sparseCoding.rr']
 # Dtheta = stateDict['sparseCoding.theta']
-=======
-
-modelRoot = './ModelFile/crossViewModel/'
-# modelPath = modelRoot + dataset + '/CS/2S_Multi_500_openpose_lam1051/'
-# modelPath = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-# modelPath = modelRoot + dataset + '/2Stream/multiClip_lam1051_testV2_CV/'
-# modelPath = modelRoot + dataset + '/DYOnly_Multi_CV/'
-modelPath = modelRoot + dataset + '/newDYAN/CV_dynamicsStream_CLOnly/'
-map_location = torch.device(gpu_id)
-stateDict = torch.load(os.path.join(modelPath, '100.pth'), map_location=map_location)['state_dict']
-# Drr = stateDict['dynamicsClassifier.sparsecoding.l1.rr']
-# Dtheta = stateDict['dynamicsClassifier.sparsecoding.l1.theta']
-
-Drr = stateDict['sparseCoding.rr']
-Dtheta = stateDict['sparseCoding.theta']
-
-
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 
 if dataset == 'NUCLA':
     num_class = 10
-<<<<<<< HEAD
     path_list = f"/data/N-UCLA_MA_3D/lists"
     # root_skeleton = '/data/Dan/N-UCLA_MA_3D/openpose_est'
     'CS:'
     # print('test dataset:', dataset, 'cross subject experiment')
-=======
-    path_list = f"/data/Dan/N-UCLA_MA_3D/lists"
-    # root_skeleton = '/data/Dan/N-UCLA_MA_3D/openpose_est'
-    'CS:'
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
     # testSet = NUCLAsubject(root_list=path_list, dataType=dataType, clip=clip, phase='test', T=T)
     # testloader = DataLoader(testSet, batch_size=1, shuffle=True, num_workers=num_workers)
 
 
     'CV:'
-<<<<<<< HEAD
     print('test dataset:', dataset, 'cross view experiment')
     testSet = NUCLA_viewProjection(root_list=path_list, dataType=dataType, clip=clip, phase='test', cam='2,1', T=T,
-=======
-    testSet = NUCLA_viewProjection(root_list=path_list, dataType=dataType, clip=clip, phase='test', cam='1,2', T=T,
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
                                   target_view='view_2',
                                   project_view='view_1', test_view='view_3')
     testloader = DataLoader(testSet, batch_size=1, shuffle=False, num_workers=num_workers)
@@ -128,7 +94,6 @@ elif dataset == 'NTU':
     nanList = list(np.load('./NTU_badList.npz')['x'])
     'CS:'
 
-<<<<<<< HEAD
     testSet = NTURGBDsubject(root_skeleton, nanList, dataType=dataType, clip=clip, phase='test', T=36)
     testloader = torch.utils.data.DataLoader(testSet, batch_size=1, shuffle=True, num_workers=2, pin_memory=True)
 
@@ -175,49 +140,10 @@ with torch.no_grad():
 
         # inputSkeleton = sample['test_velocity'].float().cuda(gpu_id)
         inputImage = sample['input_image'].float().cuda(gpu_id)
-=======
-    # testSet = NTURGBDsubject(root_skeleton, nanList, dataType=dataType, clip=clip, phase='test', T=36)
-    # testloader = torch.utils.data.DataLoader(testSet, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
-
-    'CV:'
-    testSet = NTURGBD_viewProjection(root_skeleton, root_list="/data/Yuexi/NTU-RGBD/list/", nanList=nanList, dataType= dataType, clip=clip,
-                                phase='test', T=36, target_view='C002', project_view='C001', test_view='C003')
-    testloader = DataLoader(testSet, batch_size=1, shuffle=True, num_workers=num_workers)
-
-# net = classificationWSparseCode(num_class=10, Npole=2*N+1, Drr=Drr, Dtheta=Dtheta, dataType=dataType, dim=2,gpu_id=gpu_id).cuda(gpu_id)
-net = Fullclassification(num_class=num_class, Npole=2*N+1, num_binary=2*N+1, Drr=Drr, Dtheta=Dtheta, dim=2, dataType=dataType, Inference=True, gpu_id=gpu_id).cuda(gpu_id)
-# kinetics_pretrain = './pretrained/i3d_kinetics.pth'
-# net = twoStreamClassification(num_class=num_class, Npole=(N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
-#                                   PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
-
-# net = RGBAction(num_class=num_class, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
-net.load_state_dict(stateDict)
-net.eval()
-
-
-count = 0
-pred_cnt = 0
-Acc = []
-classLabel = [[] for i in range(0, num_class)]
-classGT = [[] for i in range(0, num_class)]
-with torch.no_grad():
-
-    for s, sample in enumerate(testloader):
-        # input = sample['test_view_multiClips'].float().cuda(gpu_id)
-        'Multi'
-        inputSkeleton = sample['input_skeleton'].float().cuda(gpu_id)
-        # inputSkeleton = sample['project_skeleton'].float().cuda(gpu_id)
-        # inputImage = sample['input_image'].float().cuda(gpu_id)
-
-        'Single clip'
-        # inputSkeleton = sample['input_skeleton']['normSkeleton'].unsqueeze(0).float().cuda(gpu_id)
-        # inputImage = sample['input_image'].unsqueeze(0).float().cuda(gpu_id)
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
         t = inputSkeleton.shape[2]
         y = sample['action'].data.item()
         label = torch.zeros(inputSkeleton.shape[1], num_class)
-<<<<<<< HEAD
 
         # video_name = sample['sample_name'][0]
 
@@ -320,54 +246,5 @@ with torch.no_grad():
 
     # print('Acc:%.4f' % Acc, 'count:', count, 'pred_cnt:', pred_cnt)
     # ACC.append(Acc)
-=======
-        """""
-        if y == 0 and sample['sample_name'][0] == 'a01_s07_e00':
-        # for i in range(0, inputSkeleton.shape[1]):
-            for i in range(2, 3):
-
-
-                input_clip = inputSkeleton[:,i, :, :, :].reshape(1, t, -1)
-                input_clip = input_clip[:,:,1].unsqueeze(2)
-
-                coeff, dict = net.dynamicsClassifier.sparsecoding.l1(input_clip, t)
-                # weightPoles(coeff, Drr, Dtheta, dict)
-
-                data = {'dict':dict.cpu().numpy(), 'coeff':coeff.cpu().numpy(),
-                        'r':Drr.cpu().numpy(), 'theta':Dtheta.cpu().numpy()}
-                scipy.io.savemat('./plotDict/model3_TestV2/view1Data_train_y0_dim1.mat', mdict=data)
-                print('check')
-        """""
-
-        for i in range(0, inputSkeleton.shape[1]):
-            input_clip = inputSkeleton[:, i, :, :, :].reshape(1, t, -1)
-            # input_clip = input_clip[:, :, 1].unsqueeze(2)
-            # inputImg_clip = inputImage[:,i, :, :, :]
-            label_clip, _, _ = net(input_clip, t) # DY+BI+CL
-            # label_clip, _ = net(input_clip, t) # DY+CL
-            
-            # if fusion:
-            #     label_clip, _, _ = net.dynamicsClassifier(input_clip, t) # two stream, dynamcis branch
-            #     # label_clip = net.RGBClassifier(inputImg_clip)
-            # else:
-            #     # label_clip, _, _ = net(input_clip, inputImg_clip, t, fusion)
-            #     label_clip, _ = net(input_clip, t)  # DY + CL
-            #     # label_clip = net(inputImg_clip)
-
-            label[i] = label_clip
-        label = torch.mean(label, 0, keepdim=True)
-
-        pred = torch.argmax(label).data.item()
-
-        count += 1
-        classGT[y].append(y)
-        if pred == y:
-            classLabel[y].append(pred)
-            pred_cnt += 1
-        print('sample:',s, 'gt:', y, 'pred:', pred)
-    Acc = pred_cnt/count
-
-print('Acc:', Acc, 'total sample:', count, 'correct preds:', pred_cnt)
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 print('done')

@@ -95,18 +95,13 @@ else:
 # net = Fullclassification(num_class=num_class, Npole=N+1, num_binary=N+1, Drr=Drr, Dtheta=Dtheta, PRE=0, dim=3,dataType=dataType, gpu_id=gpu_id).cuda(gpu_id)
 kinetics_pretrain = './pretrained/i3d_kinetics.pth'
 net = twoStreamClassification(num_class=num_class, Npole=(N+1), num_binary=(N+1), Drr=Drr, Dtheta=Dtheta,
-<<<<<<< HEAD
                             dim=2, gpu_id=gpu_id, inference=True, fistaLam=0.3, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
-=======
-                                  PRE=0, dim=2, gpu_id=gpu_id, dataType=dataType, kinetics_pretrain=kinetics_pretrain).cuda(gpu_id)
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 
 net.train()
 
 # optimizer = torch.optim.SGD(filter(lambda x: x.requires_grad, net.parameters()), lr=1e-3, weight_decay=0.001, momentum=0.9)
 
-<<<<<<< HEAD
 optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.dynamicsClassifier.Classifier.parameters()), 'lr':1e-3},
 {'params':filter(lambda x: x.requires_grad, net.dynamicsClassifier.sparseCoding.parameters()), 'lr':1e-6},
 {'params':filter(lambda x: x.requires_grad, net.RGBClassifier.parameters()), 'lr':1e-4}], weight_decay=0.001, momentum=0.9)
@@ -115,23 +110,12 @@ scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[40, 70], gamma=0.1)
 Criterion = torch.nn.CrossEntropyLoss()
 mseLoss = torch.nn.MSELoss()
 L1loss = torch.nn.L1Loss()
-=======
-optimizer = torch.optim.SGD([{'params':filter(lambda x: x.requires_grad, net.dynamicsClassifier.parameters()), 'lr':1e-3},
-{'params':filter(lambda x: x.requires_grad, net.RGBClassifier.parameters()), 'lr':1e-4}], weight_decay=0.001, momentum=0.9)
-
-scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50, 100, 130], gamma=0.1)
-Criterion = torch.nn.CrossEntropyLoss()
-mseLoss = torch.nn.MSELoss()
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 
 # Criterion = torch.nn.BCELoss()
 LOSS = []
 ACC = []
 # print('cls:bi:reconst=2:0.3:1')
-<<<<<<< HEAD
 print('alpha:', Alpha, 'lam1:', lam1, 'lam2:', lam2)
-=======
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
 for epoch in range(0, Epoch+1):
     print('start training epoch:', epoch)
     lossVal = []
@@ -165,7 +149,6 @@ for epoch in range(0, Epoch+1):
 
             # label_clip, b, outClip = net(inputClip, t) # DY+BI+CL
             label_clip, b, outClip = net(inputClip,imgClip, t, fusion) #2S
-<<<<<<< HEAD
             bi_gt = torch.zeros_like(b).cuda(gpu_id)
             # bi_gt2 = torch.zeros_like(b2).cuda(gpu_id)
 
@@ -173,13 +156,6 @@ for epoch in range(0, Epoch+1):
             # loss2 = lam1 * Criterion(label2, y) + Alpha * binaryLoss(b2, gpu_id) + lam2 * mseLoss(outClip_v2, v2_clip)
             # clipBI[clip] = binaryLoss(b, gpu_id)
             clipBI[clip] = L1loss(b, bi_gt)
-=======
-
-
-            # loss1 = lam1 * Criterion(label1, y) + Alpha * binaryLoss(b1, gpu_id) + lam2 * mseLoss(outClip_v1, v1_clip)
-            # loss2 = lam1 * Criterion(label2, y) + Alpha * binaryLoss(b2, gpu_id) + lam2 * mseLoss(outClip_v2, v2_clip)
-            clipBI[clip] = binaryLoss(b, gpu_id)
->>>>>>> b6ead8a973a18436106ea495f2d5e245e8a794ab
             clipMSE[clip] = mseLoss(outClip, inputClip)
 
             if fusion:
