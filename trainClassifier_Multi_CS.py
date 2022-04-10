@@ -35,8 +35,8 @@ clip = 'Multi'
 # clip = 'Single'
 fusion = False
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
-saveModel = modelRoot + dataset + '/1106/2S_CS_Multi_fista03_reWeighted_noBI_NTU/'
+modelRoot = './crossViewModel/'
+saveModel = modelRoot + dataset + '/test/2S_CS_Multi_fista03_reWeighted_noBI_NTU/'
 if not os.path.exists(saveModel):
     os.makedirs(saveModel)
 

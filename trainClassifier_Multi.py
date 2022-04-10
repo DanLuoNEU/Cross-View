@@ -51,14 +51,13 @@ fusion = False
 
 # N = (Drr.shape[0])*2
 
-modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
+modelRoot = './crossViewModel/'
 # saveModel = os.path.join(modelRoot, dataset, '/BinarizeSparseCode_m32A1')
 # saveModel = modelRoot + dataset + '/2Stream/train_t36_CV_openpose_testV3_lam1051/'
-saveModel = modelRoot + dataset + '/1129/CV_fista02_reducedD_v1/'
+saveModel = modelRoot + dataset + '/test/CV_fista02_reducedD_v1/'
 if not os.path.exists(saveModel):
     os.makedirs(saveModel)
 map_location = torch.device(gpu_id)
-# modelRoot = '/home/yuexi/Documents/ModelFile/crossViewModel/'
 
 'load pre-trained DYAN'
 preTrained = modelRoot + dataset + '/1119/CV_fista01_reWeighted_noBI_sqrC_T36_NUCLA_v1/'

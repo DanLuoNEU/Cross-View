@@ -3,13 +3,14 @@
 !requirements.txt
 *.mat
 *.m
-*.jpg
-*.png
-*.gif
+visualization/**/*.jpg
+visualization/**/*.png
+visualization/**/*.gif
 
 */__pycache__/
 __pycache__/
 backup/
+crossViewModel/
 figure/
 forOpenPose/
 log_new/
