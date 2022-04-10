@@ -3,6 +3,9 @@
 !requirements.txt
 *.mat
 *.m
+*.jpg
+*.png
+*.gif
 
 */__pycache__/
 __pycache__/
@@ -18,4 +21,5 @@ plotDict/
 resultFile/
 runs/
 testlog/
+venv-pytorch-1_6/
 vis/
