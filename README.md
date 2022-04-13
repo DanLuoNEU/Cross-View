@@ -1,6 +1,8 @@
 # Cross-View
 Code for *Muti-view Action Recognition via View-invariant Dynamic Representations*
 
+For Reweighted Heuristic DYAN(RH-DYAN), check fista_reweighted in ./modelZoo/sparseCoding.py
+
 Environment Install
 
 ```bash
